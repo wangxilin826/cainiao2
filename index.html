@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>菜鸟裹裹寄件流程 H5 原型</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root {
       --primary: #1677ff;
@@ -1322,6 +1324,71 @@
       font-size: 13px;
       line-height: 1.55;
     }
+
+    .map-select-wrap {
+      position: relative;
+      margin-bottom: 12px;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    #addressMapEl {
+      height: 220px;
+      width: 100%;
+      background: #e8f0fb;
+    }
+
+    .map-locate-btn {
+      position: absolute;
+      right: 10px;
+      bottom: 44px;
+      z-index: 999;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+      color: var(--primary);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s ease;
+    }
+
+    .map-locate-btn:active { transform: scale(0.93); }
+
+    .map-addr-bar {
+      background: #fff;
+      padding: 10px 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-top: 1px solid var(--line);
+    }
+
+    .map-addr-bar span {
+      flex: 1;
+      min-width: 0;
+      font-size: 13px;
+      color: #4e5969;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .map-use-btn {
+      height: 30px;
+      padding: 0 13px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -1425,6 +1492,16 @@
         <h1 id="addressNavTitle">新增地址</h1>
         <button id="demoFill" class="right">示例</button>
       </div>
+
+      <div class="map-select-wrap">
+        <div id="addressMapEl"></div>
+        <button id="mapLocateBtn" class="map-locate-btn" title="重新定位">📍</button>
+        <div class="map-addr-bar">
+          <span id="mapAddrText">正在定位中...</span>
+          <button id="mapUseAddrBtn" class="map-use-btn">填入地址</button>
+        </div>
+      </div>
+
       <div class="page">
         <div class="ai-tip">💡 支持模糊输入，试试输入城市+小区 ~</div>
         <div class="card parse-card">
@@ -1833,6 +1910,86 @@
       updateSmartExampleHint();
       $$('.label-tag').forEach(tag => tag.classList.toggle('active', tag.dataset.label === data?.label));
       switchView('address');
+      setTimeout(() => initAddressMap(), 120);
+    }
+
+    let _addrMap = null, _addrMarker = null;
+
+    const mockPOIs = [
+      { lat: 30.3163, lng: 120.0586, region: '浙江省 杭州市 余杭区', detail: '文一西路 969 号菜鸟网络总部园区', label: '菜鸟网络总部', role: 'send' },
+      { lat: 22.6857, lng: 113.9266, region: '广东省 深圳市 光明区', detail: '公常路 66 号中山大学深圳校区', label: '中山大学深圳校区', role: 'receive' },
+      { lat: 30.2741, lng: 120.1551, region: '浙江省 杭州市 上城区', detail: '湖耧路 147 号', label: '西湖景区附近', role: 'send' },
+      { lat: 30.3080, lng: 120.1642, region: '浙江省 杭州市 拱墅区', detail: '天市广场 1 号', label: '天市广场商场', role: 'send' },
+    ];
+
+    function getDefaultPOI() {
+      return mockPOIs.find(p => p.role === state.addressRole) || mockPOIs[0];
+    }
+
+    function findNearestPOI(lat, lng) {
+      let best = mockPOIs[0], bestD = Infinity;
+      mockPOIs.forEach(p => {
+        const d = (p.lat - lat) ** 2 + (p.lng - lng) ** 2;
+        if (d < bestD) { bestD = d; best = p; }
+      });
+      return best;
+    }
+
+    function setMapPin(lat, lng, poi) {
+      _addrMarker.setLatLng([lat, lng]);
+      _addrMap.panTo([lat, lng]);
+      const popupHtml = `<div style="font-size:12px;line-height:1.6;max-width:160px;">
+        <strong style="font-size:13px;">${poi.label}</strong><br>
+        ${poi.region}<br>
+        <span style="color:#86909c">${poi.detail}</span>
+      </div>`;
+      _addrMarker.bindPopup(popupHtml, { closeButton: false, offset: [0, -10] }).openPopup();
+      $('#mapAddrText').textContent = `${poi.region} ${poi.detail}`;
+      _addrMap._pendingAddr = { region: poi.region, detail: poi.detail };
+    }
+
+    function initAddressMap() {
+      const container = document.getElementById('addressMapEl');
+      if (!container) return;
+      if (_addrMap) {
+        _addrMap.invalidateSize();
+        locateOnMap();
+        return;
+      }
+      const poi = getDefaultPOI();
+      _addrMap = L.map('addressMapEl', { zoomControl: false, attributionControl: false }).setView([poi.lat, poi.lng], 16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(_addrMap);
+      L.control.zoom({ position: 'topright' }).addTo(_addrMap);
+      const pinIcon = L.divIcon({
+        className: '',
+        html: '<div style="font-size:30px;line-height:1;filter:drop-shadow(0 3px 8px rgba(0,0,0,.3))">📍</div>',
+        iconAnchor: [15, 30]
+      });
+      _addrMarker = L.marker([poi.lat, poi.lng], { icon: pinIcon, draggable: true }).addTo(_addrMap);
+      _addrMarker.on('dragend', () => {
+        const { lat, lng } = _addrMarker.getLatLng();
+        const near = findNearestPOI(lat, lng);
+        setMapPin(lat, lng, near);
+      });
+      _addrMap.on('click', e => {
+        const near = findNearestPOI(e.latlng.lat, e.latlng.lng);
+        setMapPin(e.latlng.lat, e.latlng.lng, near);
+      });
+      locateOnMap();
+    }
+
+    function locateOnMap() {
+      const poi = getDefaultPOI();
+      _addrMap.setView([poi.lat, poi.lng], 16);
+      setMapPin(poi.lat, poi.lng, poi);
+    }
+
+    function useMapAddress() {
+      const pending = _addrMap && _addrMap._pendingAddr;
+      if (!pending) { showToast('请先在地图上选择位置'); return; }
+      $('#regionInput').value = pending.region;
+      $('#detailInput').value = pending.detail;
+      showToast('地图地址已填入');
     }
 
     function saveAddress() {
@@ -2002,6 +2159,8 @@
     }
 
     function bindEvents() {
+      $('#mapLocateBtn').addEventListener('click', locateOnMap);
+      $('#mapUseAddrBtn').addEventListener('click', useMapAddress);
       $('#itemChips').addEventListener('click', event => {
         const btn = event.target.closest('[data-item]');
         if (!btn) return;
