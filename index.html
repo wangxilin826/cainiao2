@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>菜鸟裹裹寄件流程 H5 原型</title>
+  <style>
+    :root {
+      --primary: #1677ff;
+      --primary-soft: #eaf3ff;
+      --primary-light: #f4f9ff;
+      --bg: #f5f6f8;
+      --card: #ffffff;
+      --text: #1f2329;
+      --muted: #86909c;
+      --line: #edf0f5;
+      --orange: #ff7a00;
+      --red: #ff4d4f;
+      --green: #00b578;
+      --shadow: 0 10px 30px rgba(31, 35, 41, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #dfe6ef;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+    }
+
+    button,
+    input {
+      font: inherit;
+      border: 0;
+      outline: 0;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .phone {
+      width: min(100vw, 414px);
+      min-width: 375px;
+      min-height: 100vh;
+      background: var(--bg);
+      position: relative;
+      overflow-x: hidden;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+    }
+
+    .status-space {
+      height: env(safe-area-inset-top, 10px);
+      min-height: 10px;
+      background: linear-gradient(180deg, #e8f3ff 0%, var(--bg) 100%);
+    }
+
+    .view {
+      display: none;
+      min-height: 100vh;
+      padding-bottom: 110px;
+      animation: viewIn 0.22s ease both;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes viewIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .nav {
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(245, 246, 248, 0.86);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .nav .left,
+    .nav .right {
+      position: absolute;
+      top: 0;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      color: var(--primary);
+      font-size: 15px;
+      background: transparent;
+    }
+
+    .nav .left { left: 12px; }
+    .nav .right { right: 12px; }
+
+    .page {
+      padding: 10px 14px 0;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #dcecff 0%, #f8fbff 68%);
+      border-radius: 0 0 28px 28px;
+      padding: 12px 14px 18px;
+      margin-bottom: -8px;
+    }
+
+    .hero-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .hero-title strong {
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .hero-title span {
+      font-size: 12px;
+      color: var(--primary);
+      background: rgba(22, 119, 255, 0.1);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .card.pad {
+      padding: 16px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .section-title small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .address-card {
+      padding: 16px;
+    }
+
+    .address-row {
+      display: grid;
+      grid-template-columns: 34px 1fr 22px;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0;
+    }
+
+    .address-row + .address-row {
+      border-top: 1px dashed var(--line);
+      margin-top: 12px;
+      padding-top: 16px;
+    }
+
+    .badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .badge.send { background: var(--primary); }
+    .badge.receive { background: var(--orange); }
+
+    .address-main {
+      min-width: 0;
+    }
+
+    .address-main strong {
+      display: block;
+      font-size: 16px;
+      line-height: 1.35;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .address-main span {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .arrow {
+      color: #c3c8d1;
+      font-size: 20px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .chip {
+      min-width: 70px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      color: #3d4755;
+      background: #f4f6fa;
+      border: 1px solid transparent;
+      transition: 0.2s ease;
+    }
+
+    .chip.active {
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-color: rgba(22, 119, 255, 0.32);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(22, 119, 255, 0.12);
+    }
+
+    .custom-item-box {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 15px;
+      background: #f7f9fc;
+      border: 1px solid #edf0f5;
+    }
+
+    .custom-item-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .voice-item-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: 0.2s ease;
+    }
+
+    .voice-item-btn.listening {
+      background: var(--red);
+      color: #fff;
+      animation: pulse 0.9s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,77,79,0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(255,77,79,0); }
+    }
+
+    .voice-item-btn:active {
+      transform: scale(0.94);
+    }
+
+    .custom-item-input input {
+      flex: 1;
+      min-width: 0;
+      height: 38px;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    #analyzeItemBtn {
+      width: 76px;
+      height: 34px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--primary);
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+      transition: 0.2s ease;
+    }
+
+    #analyzeItemBtn:active {
+      transform: scale(0.96);
+    }
+
+    .custom-item-result {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .weight-line {
+      display: flex;
+      align-items: center;
+      margin-top: 14px;
+      background: #f7f9fc;
+      border-radius: 14px;
+      padding: 0 12px;
+      height: 48px;
+    }
+
+    .weight-line label {
+      color: #4e5969;
+      font-size: 14px;
+      margin-right: 12px;
+    }
+
+    .weight-line input {
+      flex: 1;
+      background: transparent;
+      font-size: 18px;
+      color: var(--text);
+      min-width: 0;
+    }
+
+    .weight-line span {
+      color: var(--muted);
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .cp-tip {
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--primary-light);
+      color: #4776ad;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cp-list {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 2px 6px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .cp-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .cp-card {
+      flex: 0 0 106px;
+      position: relative;
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      grid-template-rows: auto auto;
+      gap: 6px 6px;
+      align-items: start;
+      padding: 12px 8px 9px;
+      border-radius: 15px;
+      background: #f8faff;
+      border: 1px solid transparent;
+      transition: 0.22s ease;
+      scroll-snap-align: start;
+      text-align: left;
+    }
+
+    .cp-card.active {
+      background: #fff;
+      border-color: rgba(22, 119, 255, 0.55);
+      box-shadow: 0 8px 20px rgba(22, 119, 255, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .rank {
+      width: 20px;
+      height: 20px;
+      border-radius: 7px;
+      color: #fff;
+      background: #aeb7c5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .cp-card.active .rank {
+      background: var(--primary);
+    }
+
+    .cp-badge {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      min-width: 22px;
+      height: 18px;
+      padding: 0 6px;
+      border-radius: 0 15px 0 10px;
+      color: #fff;
+      background: var(--red);
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 18px;
+      text-align: center;
+    }
+
+    .cp-info strong {
+      display: block;
+      max-width: 56px;
+      font-size: 13px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cp-info p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.38;
+      overflow: hidden;
+    }
+
+    .pickup-line {
+      display: block;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 2px;
+    }
+
+    .carrier-line {
+      display: block;
+    }
+
+    .price {
+      grid-column: 2;
+      justify-self: start;
+      color: var(--red);
+      font-weight: 800;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .pickup-row {
+      width: 100%;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .pickup-main strong {
+      display: block;
+      font-size: 16px;
+    }
+
+    .pickup-main span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pickup-value {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .time-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .time-card {
+      min-height: 58px;
+      padding: 9px 6px;
+      border-radius: 14px;
+      background: #f7f9fc;
+      border: 1px solid transparent;
+      color: var(--text);
+      text-align: center;
+      transition: 0.2s ease;
+    }
+
+    .time-card strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .time-card span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.2;
+    }
+
+    .time-card.active {
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-color: rgba(22, 119, 255, 0.42);
+      box-shadow: 0 6px 14px rgba(22, 119, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .time-card.active span {
+      color: #4776ad;
+    }
+
+    .coupon-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .coupon-left strong {
+      font-size: 15px;
+      display: block;
+    }
+
+    .coupon-left span {
+      margin-top: 5px;
+      font-size: 12px;
+      color: var(--orange);
+      display: block;
+    }
+
+    .coupon-value {
+      color: var(--red);
+      font-weight: 800;
+      font-size: 17px;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(100vw, 414px);
+      min-width: 375px;
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 -8px 26px rgba(31, 35, 41, 0.08);
+      z-index: 20;
+    }
+
+    .fee-detail {
+      display: none;
+      margin-bottom: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f7f9fc;
+      color: #4e5969;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .fee-detail.show {
+      display: block;
+    }
+
+    .bar-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .total small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .total strong {
+      display: block;
+      color: var(--red);
+      font-size: 23px;
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+
+    .detail-btn {
+      margin-left: 4px;
+      color: var(--primary);
+      background: transparent;
+      font-size: 12px;
+      padding: 0;
+    }
+
+    .order-btn,
+    .primary-btn {
+      height: 48px;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 800;
+      background: linear-gradient(135deg, #1677ff 0%, #46a6ff 100%);
+      box-shadow: 0 8px 18px rgba(22, 119, 255, 0.28);
+      transition: 0.2s ease;
+    }
+
+    .order-btn:active,
+    .primary-btn:active {
+      transform: scale(0.98);
+    }
+
+    .order-btn {
+      width: 142px;
+      font-size: 16px;
+    }
+
+    .address-tools {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .tool-btn {
+      height: 78px;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: 0.2s ease;
+    }
+
+    .tool-btn:active {
+      transform: scale(0.97);
+    }
+
+    .tool-btn span {
+      font-size: 24px;
+    }
+
+    .tool-btn strong {
+      font-size: 13px;
+    }
+
+    .ai-tip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 12px;
+      border-radius: 15px;
+      background: var(--primary-soft);
+      color: #33699f;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .parse-card {
+      padding: 14px;
+    }
+
+    .parse-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .parse-title strong {
+      font-size: 15px;
+    }
+
+    .parse-title button {
+      color: var(--primary);
+      background: transparent;
+      font-size: 12px;
+      padding: 0;
+    }
+
+    .parse-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 6px 6px 6px 13px;
+      border-radius: 15px;
+      background: #f7f9fc;
+      border: 1px solid #edf0f5;
+    }
+
+    .parse-box input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      color: var(--text);
+    }
+
+    .parse-box button {
+      width: 72px;
+      height: 36px;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 700;
+      background: var(--primary);
+      transition: 0.2s ease;
+    }
+
+    .parse-box button:active {
+      transform: scale(0.96);
+    }
+
+    .parse-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .mini-ai-btn {
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #4776ad;
+      background: var(--primary-light);
+      font-size: 12px;
+      transition: 0.2s ease;
+    }
+
+    .mini-ai-btn:active {
+      transform: scale(0.96);
+      background: var(--primary-soft);
+    }
+
+    .parse-result {
+      margin-top: 9px;
+      min-height: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .form-card {
+      padding: 0 16px;
+    }
+
+    .form-row {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      gap: 12px;
+    }
+
+    .form-row:last-child {
+      border-bottom: 0;
+    }
+
+    .form-row label {
+      width: 86px;
+      font-size: 15px;
+      color: #2f3540;
+      flex-shrink: 0;
+    }
+
+    .required::after {
+      content: " *";
+      color: var(--red);
+    }
+
+    .form-row input {
+      flex: 1;
+      min-width: 0;
+      height: 42px;
+      background: transparent;
+      color: var(--text);
+    }
+
+    .landline {
+      color: var(--primary);
+      background: transparent;
+      font-size: 13px;
+      white-space: nowrap;
+      padding: 0;
+    }
+
+    .label-tags {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      flex-wrap: wrap;
+      padding: 12px 0;
+    }
+
+    .label-tag {
+      height: 32px;
+      padding: 0 13px;
+      border-radius: 999px;
+      color: #4e5969;
+      background: #f4f6fa;
+      transition: 0.2s ease;
+    }
+
+    .label-tag.active {
+      color: var(--primary);
+      background: var(--primary-soft);
+      font-weight: 700;
+    }
+
+    .form-actions {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(100vw, 414px);
+      min-width: 375px;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 10px;
+      padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(18px);
+      z-index: 20;
+    }
+
+    .ghost-btn {
+      height: 48px;
+      border-radius: 999px;
+      background: #f1f3f7;
+      color: #4e5969;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 96px;
+      transform: translateX(-50%) translateY(20px);
+      width: max-content;
+      max-width: 300px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(31, 35, 41, 0.86);
+      color: #fff;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s ease;
+      z-index: 60;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8, 15, 26, 0.48);
+      z-index: 50;
+      padding: 26px;
+      animation: fadeIn 0.24s ease both;
+    }
+
+    .modal-mask.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .coupon-modal {
+      width: 100%;
+      max-width: 330px;
+      border-radius: 26px;
+      background: linear-gradient(180deg, #fff6ed 0%, #ffffff 56%);
+      padding: 24px 20px 18px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+      animation: popIn 0.28s cubic-bezier(.2,.9,.2,1.12) both;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(18px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-close {
+      position: absolute;
+      right: 14px;
+      top: 12px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.04);
+      color: #8a8f99;
+      font-size: 18px;
+    }
+
+    .gift {
+      font-size: 38px;
+      margin-bottom: 8px;
+    }
+
+    .coupon-modal h3 {
+      margin: 0;
+      font-size: 22px;
+      color: #c84b00;
+    }
+
+    .coupon-modal p {
+      margin: 8px 0 16px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .coupon-ticket {
+      height: 86px;
+      border-radius: 18px;
+      margin: 0 0 18px;
+      color: #fff;
+      background: linear-gradient(135deg, #ff7a00 0%, #ff4d4f 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 10px 22px rgba(255, 77, 79, 0.22);
+    }
+
+    .coupon-ticket b {
+      font-size: 36px;
+    }
+
+    .coupon-ticket span {
+      text-align: left;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .claim-btn {
+      width: 100%;
+      height: 48px;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ff8a00 0%, #ff4d4f 100%);
+    }
+
+    .contact-modal {
+      width: 100%;
+      max-width: 340px;
+      border-radius: 24px;
+      background: #fff;
+      padding: 22px 18px 16px;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+      animation: popIn 0.28s cubic-bezier(.2,.9,.2,1.12) both;
+    }
+
+    .contact-modal h3 {
+      margin: 0;
+      font-size: 19px;
+      text-align: center;
+    }
+
+    .contact-modal p {
+      margin: 8px 0 14px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .contact-group {
+      padding: 12px;
+      border-radius: 16px;
+      background: #f7f9fc;
+      margin-bottom: 10px;
+    }
+
+    .contact-group strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 9px;
+    }
+
+    .contact-inputs {
+      display: grid;
+      gap: 8px;
+    }
+
+    .contact-inputs input {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .contact-submit {
+      width: 100%;
+      height: 46px;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 800;
+      background: linear-gradient(135deg, #1677ff 0%, #46a6ff 100%);
+      box-shadow: 0 8px 18px rgba(22, 119, 255, 0.2);
+      margin-top: 4px;
+    }
+
+    .success-hero {
+      padding: 20px 16px 18px;
+      border-radius: 0 0 28px 28px;
+      background: linear-gradient(135deg, #1677ff 0%, #6bb8ff 100%);
+      color: #fff;
+      text-align: center;
+    }
+
+    .success-icon {
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    .success-hero h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .success-hero p {
+      margin: 8px 0 0;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .pickup-code {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .pickup-code span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pickup-code strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--primary);
+      font-size: 30px;
+      letter-spacing: 3px;
+    }
+
+    .copy-code {
+      width: 72px;
+      height: 34px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--primary);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .courier-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .courier-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 18px;
+      background: var(--primary-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 25px;
+      flex-shrink: 0;
+    }
+
+    .courier-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .courier-info strong {
+      display: block;
+      font-size: 16px;
+    }
+
+    .courier-info span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .call-btn {
+      width: 66px;
+      height: 34px;
+      border-radius: 999px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .map-card {
+      height: 188px;
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(90deg, rgba(22,119,255,0.08) 1px, transparent 1px),
+        linear-gradient(rgba(22,119,255,0.08) 1px, transparent 1px),
+        linear-gradient(135deg, #eaf5ff 0%, #f9fbff 100%);
+      background-size: 38px 38px, 38px 38px, auto;
+      border: 1px solid #e7eef8;
+    }
+
+    .map-road {
+      position: absolute;
+      left: 22px;
+      right: 18px;
+      top: 86px;
+      height: 8px;
+      border-radius: 999px;
+      background: #c9d8e8;
+      transform: rotate(-10deg);
+    }
+
+    .map-road::after {
+      content: "";
+      position: absolute;
+      left: 92px;
+      top: -44px;
+      width: 8px;
+      height: 96px;
+      border-radius: 999px;
+      background: #d6e2ef;
+      transform: rotate(58deg);
+    }
+
+    .map-pin,
+    .map-courier {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 18px rgba(22, 119, 255, 0.18);
+    }
+
+    .map-pin {
+      right: 62px;
+      top: 54px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50% 50% 50% 8px;
+      transform: rotate(-45deg);
+      background: var(--orange);
+      color: #fff;
+    }
+
+    .map-pin span {
+      transform: rotate(45deg);
+      font-size: 17px;
+    }
+
+    .map-courier {
+      left: 72px;
+      bottom: 44px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--primary);
+      font-size: 21px;
+    }
+
+    .map-route {
+      position: absolute;
+      left: 108px;
+      right: 91px;
+      bottom: 68px;
+      border-top: 3px dashed var(--primary);
+      transform: rotate(-23deg);
+      opacity: 0.75;
+    }
+
+    .map-status {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      padding: 9px 11px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #4e5969;
+      font-size: 12px;
+      box-shadow: 0 8px 18px rgba(31, 35, 41, 0.08);
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 10px;
+      color: #4e5969;
+      font-size: 13px;
+    }
+
+    .summary-list div {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .summary-list span:last-child {
+      color: var(--text);
+      text-align: right;
+      flex: 1;
+    }
+
+    .success-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .success-actions button {
+      height: 42px;
+      border-radius: 999px;
+      font-weight: 800;
+    }
+
+    .outline-btn {
+      color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .empty-note {
+      padding: 13px;
+      border-radius: 14px;
+      background: #f8faff;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <section id="homeView" class="view active">
+      <div class="status-space"></div>
+      <div class="hero">
+        <div class="hero-title">
+          <strong>菜鸟裹裹</strong>
+          <span>智能寄件推荐</span>
+        </div>
+        <div class="card address-card">
+          <div class="address-row" data-open-address="send">
+            <div class="badge send">寄</div>
+            <div class="address-main">
+              <strong id="sendTitle">添加寄件人地址</strong>
+              <span id="sendSub">智能识别填写更快，信息仅本地模拟</span>
+            </div>
+            <div class="arrow">›</div>
+          </div>
+          <div class="address-row" data-open-address="receive">
+            <div class="badge receive">收</div>
+            <div class="address-main">
+              <strong id="receiveTitle">添加收件人地址</strong>
+              <span id="receiveSub">请选择省市区与详细地址</span>
+            </div>
+            <div class="arrow">›</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page">
+        <div class="card pad">
+          <div class="section-title">
+            <h2>邮寄物品及重量</h2>
+            <small>选填，智能推荐</small>
+          </div>
+                    <div id="itemChips" class="chips"></div>
+          <div class="custom-item-box">
+            <div class="custom-item-input">
+              <button id="voiceItemBtn" class="voice-item-btn" title="语音输入">🎙️</button>
+              <input id="customItemInput" placeholder="其他物品，输入描述：如两台电脑、一箱衣服" />
+              <button id="analyzeItemBtn">识别</button>
+            </div>
+            <div id="customItemResult" class="custom-item-result">后台大模型模拟解析物品类型，并自动推荐快递方式。</div>
+          </div>
+          <div class="weight-line">
+            <label for="weightInput">预估重量</label>
+            <input id="weightInput" type="number" min="0.1" step="0.1" placeholder="请输入" />
+            <span>kg</span>
+          </div>
+          <div class="hint" id="itemHint">选择物品类型后，将自动填入默认重量并调整寄件方式排序。</div>
+        </div>
+
+        <div class="card pad">
+          <div class="section-title">
+            <h2>推荐寄件方式</h2>
+            <small id="sortLabel">默认排序</small>
+          </div>
+          <div id="cpTip" class="cp-tip">💡 未选物品，当前按常用服务默认排序展示。</div>
+          <div id="cpList" class="cp-list"></div>
+        </div>
+
+        <div class="card pad">
+          <button id="openPickupTime" class="pickup-row">
+            <div class="pickup-main">
+              <strong>上门时间</strong>
+              <span>已为你优先选择最快可上门时间</span>
+            </div>
+            <div class="pickup-value"><span id="pickupTimeLabel">今天 14:00-16:00</span><span>›</span></div>
+          </button>
+        </div>
+
+        <div class="card pad">
+          <div class="coupon-row">
+            <div class="coupon-left">
+              <strong>优惠</strong>
+              <span id="couponCountdown">新人券领取后展示倒计时</span>
+            </div>
+            <div id="couponValue" class="coupon-value">待领取</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-bar">
+        <div id="feeDetail" class="fee-detail"></div>
+        <div class="bar-main">
+          <div class="total">
+            <small>实付金额 <button id="detailBtn" class="detail-btn">详情</button></small>
+            <strong id="totalPrice">¥0</strong>
+          </div>
+          <button id="orderBtn" class="order-btn">立即下单</button>
+        </div>
+      </div>
+    </section>
+
+        <section id="addressView" class="view">
+      <div class="status-space"></div>
+      <div class="nav">
+        <button id="backHome" class="left">‹ 返回</button>
+        <h1 id="addressNavTitle">新增地址</h1>
+        <button id="demoFill" class="right">示例</button>
+      </div>
+      <div class="page">
+        <div class="ai-tip">💡 支持模糊输入，试试输入城市+小区 ~</div>
+        <div class="card parse-card">
+          <div class="parse-title">
+            <strong>智能识别地址</strong>
+            <button id="exampleAddressText">填入示例</button>
+          </div>
+          <div class="parse-box">
+            <input id="smartAddressInput" placeholder="输入：杭州菜鸟总部" />
+            <button id="parseAddress">识别</button>
+          </div>
+          <div class="parse-actions">
+            <button class="mini-ai-btn" data-ai="voice">🎙️ AI语音识别</button>
+            <button class="mini-ai-btn" data-ai="image">🖼️ 图片识别</button>
+          </div>
+          <div id="parseResult" class="parse-result">示例：输入“杭州菜鸟总部”，点击识别后自动解析。</div>
+        </div>
+        <div class="card form-card">
+          <div class="form-row">
+            <label class="required" for="regionInput">省市区</label>
+            <input id="regionInput" placeholder="如：浙江省 杭州市 余杭区" />
+          </div>
+          <div class="form-row">
+            <label class="required" for="detailInput">详细地址</label>
+            <input id="detailInput" placeholder="街道门牌、楼栋房号" />
+          </div>
+          <div class="form-row">
+            <label for="nameInput">姓名</label>
+            <input id="nameInput" placeholder="选填" />
+          </div>
+          <div class="form-row">
+            <label for="phoneInput">手机号</label>
+            <input id="phoneInput" type="tel" placeholder="选填" />
+            <button id="landlineBtn" class="landline">切换座机</button>
+          </div>
+          <div class="form-row">
+            <label>设置标签</label>
+            <div id="addressLabels" class="label-tags">
+              <button class="label-tag" data-label="亲人">亲人</button>
+              <button class="label-tag" data-label="朋友">朋友</button>
+              <button class="label-tag" data-label="客户">客户</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button id="clearAddress" class="ghost-btn">清空</button>
+        <button id="saveAddress" class="primary-btn">确定</button>
+      </div>
+    </section>
+
+    <section id="successView" class="view">
+      <div class="status-space"></div>
+      <div class="success-hero">
+        <div class="success-icon">✅</div>
+        <h2>下单成功</h2>
+        <p>快递员已收到取件任务，请保持电话畅通</p>
+      </div>
+      <div class="page">
+        <div class="card pad">
+          <div class="pickup-code">
+            <div>
+              <span>取件码</span>
+              <strong id="pickupCode">CN8294</strong>
+            </div>
+            <button id="copyPickupCode" class="copy-code">复制</button>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div class="section-title">
+            <h2>快递员正在赶来</h2>
+            <small id="courierEta">约 18 分钟</small>
+          </div>
+          <div class="courier-row">
+            <div class="courier-avatar">🛵</div>
+            <div class="courier-info">
+              <strong>李师傅 · 菜鸟优选</strong>
+              <span>服务评分 4.9 · 已完成 3286 单</span>
+            </div>
+            <button id="callCourier" class="call-btn">电话</button>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div class="section-title">
+            <h2>快递员位置</h2>
+            <small>模拟地图</small>
+          </div>
+          <div class="map-card">
+            <div class="map-road"></div>
+            <div class="map-route"></div>
+            <div class="map-courier">🛵</div>
+            <div class="map-pin"><span>📦</span></div>
+            <div class="map-status">快递员距你约 1.8km，正在前往寄件地址</div>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div class="section-title">
+            <h2>订单摘要</h2>
+            <small id="successOrderStatus">待上门</small>
+          </div>
+          <div class="summary-list">
+            <div><span>寄件方式</span><span id="successCpName">标准寄</span></div>
+            <div><span>上门时间</span><span id="successPickupTime">今天 14:00-16:00</span></div>
+            <div><span>寄件地址</span><span id="successSendAddress">-</span></div>
+            <div><span>收件地址</span><span id="successReceiveAddress">-</span></div>
+          </div>
+          <div class="success-actions">
+            <button id="backToHome" class="outline-btn">返回首页</button>
+            <button id="viewOrderDetail" class="primary-btn">查看订单</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="couponModal" class="modal-mask">
+      <div class="coupon-modal">
+        <button id="closeCoupon" class="modal-close">×</button>
+        <div class="gift">🎁</div>
+        <h3>新人限时优惠券</h3>
+        <p>首次寄件立减 3 元，关闭弹窗也会自动领取到账户。</p>
+        <div class="coupon-ticket">
+          <b>¥3</b>
+          <span>寄件通用券<br />29:59 后失效</span>
+        </div>
+        <button id="claimCoupon" class="claim-btn">立即领取</button>
+      </div>
+    </div>
+
+        <div id="contactModal" class="modal-mask">
+      <div class="contact-modal">
+        <button id="closeContact" class="modal-close">×</button>
+        <h3>补全联系人信息</h3>
+        <p>下单前需要填写寄件人与收件人的姓名、手机号。</p>
+        <div class="contact-group">
+          <strong>寄件人</strong>
+          <div class="contact-inputs">
+            <input id="sendContactName" placeholder="寄件人姓名" />
+            <input id="sendContactPhone" type="tel" placeholder="寄件人手机号" />
+          </div>
+        </div>
+        <div class="contact-group">
+          <strong>收件人</strong>
+          <div class="contact-inputs">
+            <input id="receiveContactName" placeholder="收件人姓名" />
+            <input id="receiveContactPhone" type="tel" placeholder="收件人手机号" />
+          </div>
+        </div>
+        <button id="submitContact" class="contact-submit">保存并下单</button>
+      </div>
+    </div>
+
+    <div id="pickupTimeModal" class="modal-mask">
+      <div class="contact-modal">
+        <button id="closePickupTime" class="modal-close">×</button>
+        <h3>选择上门时间</h3>
+        <p>已为你默认选择最快时间，也可以切换其他时间段。</p>
+        <div id="pickupTimeList" class="time-list"></div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+  </main>
+
+  <script>
+    const state = {
+      activeView: 'home',
+      addressRole: 'send',
+      selectedItem: '',
+      selectedCp: '',
+      selectedPickupTime: 'today-14',
+      pickupCode: 'CN8294',
+      couponClaimed: false,
+      couponActive: false,
+      couponSeconds: 29 * 60 + 59,
+      couponTimer: null,
+      feeDetailOpen: false,
+      addresses: {
+        send: null,
+        receive: null
+      }
+    };
+
+        const items = [
+      { name: '文件', icon: '📄', weight: 1, order: ['premium', 'standard', 'budget'], tip: '文件已默认 1kg，优先推荐更稳妥的尊享寄。' },
+      { name: '日用品', icon: '🧴', weight: 1, order: ['standard', 'budget', 'premium'], tip: '日用品已默认 1kg，优先推荐性价比均衡的标准寄。' },
+      { name: '行李', icon: '🧳', weight: 3, order: ['large', 'budget', 'premium', 'standard'], tip: '行李已默认 3kg，优先推荐适合重物的寄大件。' },
+      { name: '数码', icon: '💻', weight: 1.5, order: ['premium', 'standard', 'budget'], tip: '数码物品建议选择时效与保障更好的服务。' },
+      { name: '生鲜', icon: '🐟', weight: 1, order: ['premium', 'standard', 'budget'], tip: '生鲜已默认 1kg，优先推荐时效稳定的标准寄。' }
+    ];
+
+    const customItemRules = [
+      { type: '文件', keywords: ['文件', '合同', '资料', '证件', '发票', '纸质', '档案', '书'], reason: '识别到文件/纸质资料意图' },
+      { type: '行李', keywords: ['行李', '箱子', '行李箱', '搬家', '衣服很多', '被子', '大包', '大件'], reason: '识别到行李或大件搬运意图' },
+      { type: '数码', keywords: ['电脑', '手机', '平板', '相机', '耳机', '键盘', '笔记本', '电子'], reason: '识别到数码电子产品意图' },
+      { type: '生鲜', keywords: ['生鲜', '食品', '零食', '水果', '茶叶', '月饼', '鲜鱼', '肉', '荸荷', '特产', '吃的'], reason: '识别到生鲜/食品寄递意图' },
+      { type: '日用品', keywords: ['衣服', '鞋', '护肤', '日用品', '杯子', '玩具', '生活用品'], reason: '识别到日用品寄递意图' }
+    ];
+
+    const cpMap = {
+      premium: { name: '尊享寄', carrier: '1小时上门<br>顺丰', base: 18, perKg: 3.2, badge: '快' },
+      standard: { name: '标准寄', carrier: '2小时上门<br>菜鸟、圆通等快递优选', base: 12, perKg: 2.2, badge: '稳' },
+      budget: { name: '特惠寄', carrier: '当日取<br>申通、韵达等优选', base: 9, perKg: 1.8, badge: '省' },
+      large: { name: '寄大件', carrier: '当日取<br>德邦、京东等优选', base: 20, perKg: 2.8, badge: '大' }
+    };
+
+    const pickupTimes = [
+      { id: 'today-14', title: '今天', time: '14:00-16:00' },
+      { id: 'today-16', title: '今天', time: '16:00-18:00' },
+      { id: 'tomorrow-10', title: '明天', time: '10:00-12:00' }
+    ];
+
+    const defaultOrder = ['standard', 'budget', 'premium'];
+    const addressParseExamples = [
+      {
+        keywords: ['杭州菜鸟总部', '菜鸟总部', '杭州菜鸟'],
+        region: '浙江省 杭州市 余杭区',
+        detail: '文一西路 969 号菜鸟网络总部园区',
+        name: '',
+        phone: '',
+        label: '客户'
+      },
+      {
+        keywords: ['深圳中山大学', '中山大学深圳', '中山大学深圳校区'],
+        region: '广东省 深圳市 光明区',
+        detail: '公常路 66 号中山大学深圳校区',
+        name: '',
+        phone: '',
+        label: '客户'
+      }
+    ];
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => Array.from(document.querySelectorAll(selector));
+
+    function money(value) {
+      const fixed = Math.max(0, value).toFixed(1);
+      return fixed.endsWith('.0') ? fixed.slice(0, -2) : fixed;
+    }
+
+    function getWeight() {
+      const raw = Number($('#weightInput').value);
+      return raw > 0 ? raw : 1;
+    }
+
+    function getCpPrice(cpKey) {
+      const cp = cpMap[cpKey];
+      const weight = getWeight();
+      return cp.base + Math.max(0, weight - 1) * cp.perKg;
+    }
+
+    function getCurrentOrder() {
+      const item = items.find(entry => entry.name === state.selectedItem);
+      return item ? item.order : defaultOrder;
+    }
+
+    function renderItems() {
+      $('#itemChips').innerHTML = items.map(item => `
+        <button class="chip ${state.selectedItem === item.name ? 'active' : ''}" data-item="${item.name}">${item.icon} ${item.name}</button>
+      `).join('');
+    }
+
+    function applyItemSelection(item, sourceText = '') {
+      state.selectedItem = item.name;
+      state.selectedCp = item.order[0];
+      $('#weightInput').value = item.weight;
+      $('#itemHint').textContent = sourceText ? `已根据“${sourceText}”识别为${item.name}，默认重量 ${item.weight}kg，可手动修改。` : `${item.name}默认重量 ${item.weight}kg，可手动修改。`;
+      renderItems();
+      renderCpList();
+    }
+
+    function analyzeCustomItem() {
+      const text = $('#customItemInput').value.trim();
+      if (!text) {
+        showToast('请输入物品描述');
+        return;
+      }
+      const normalized = text.replace(/\s/g, '').toLowerCase();
+      const matchedRule = customItemRules.find(rule => rule.keywords.some(keyword => normalized.includes(keyword.toLowerCase())));
+      const inferredType = matchedRule ? matchedRule.type : '日用品';
+      const item = items.find(entry => entry.name === inferredType);
+      applyItemSelection(item, text);
+      $('#customItemResult').textContent = `🤖 大模型模拟解析：${matchedRule ? matchedRule.reason : '未命中特定品类，按常见日用品意图处理'}，推荐按「${inferredType}」排序。`;
+      showToast(`已识别为${inferredType}并更新推荐`);
+    }
+
+    function renderCpList() {
+      const order = getCurrentOrder();
+      if (!order.includes(state.selectedCp)) {
+        state.selectedCp = order[0];
+      }
+      $('#cpList').innerHTML = order.map((key, index) => {
+        const cp = cpMap[key];
+        const active = state.selectedCp === key;
+        const [pickupLine, carrierLine] = cp.carrier.split('<br>');
+        return `
+          <button class="cp-card ${active ? 'active' : ''}" data-cp="${key}">
+            <div class="rank">${index + 1}</div>
+            <div class="cp-badge">${cp.badge}</div>
+            <div class="cp-info">
+              <strong>${cp.name}</strong>
+              <p><span class="pickup-line">${pickupLine}</span><span class="carrier-line">${carrierLine}</span></p>
+            </div>
+            <div class="price">¥${money(getCpPrice(key))}</div>
+          </button>
+        `;
+      }).join('');
+
+      const selected = items.find(entry => entry.name === state.selectedItem);
+      $('#sortLabel').textContent = selected ? `${selected.name}推荐` : '默认排序';
+      $('#cpTip').textContent = selected ? `💡 ${selected.tip}` : '💡 未选物品，当前按常用服务默认排序展示。';
+      updatePrice();
+    }
+
+    function renderPickupTimes() {
+      const selected = pickupTimes.find(time => time.id === state.selectedPickupTime) || pickupTimes[0];
+      state.selectedPickupTime = selected.id;
+      $('#pickupTimeLabel').textContent = `${selected.title} ${selected.time}`;
+      $('#pickupTimeList').innerHTML = pickupTimes.map(time => `
+        <button class="time-card ${state.selectedPickupTime === time.id ? 'active' : ''}" data-time="${time.id}">
+          <strong>${time.title}</strong>
+          <span>${time.time}</span>
+        </button>
+      `).join('');
+    }
+
+    function openPickupTimeModal() {
+      $('#pickupTimeModal').classList.add('show');
+    }
+
+    function closePickupTimeModal() {
+      $('#pickupTimeModal').classList.remove('show');
+    }
+
+    function updatePrice() {
+      const original = getCpPrice(state.selectedCp || getCurrentOrder()[0]);
+      const discount = state.couponActive ? 3 : 0;
+      const payable = Math.max(0, original - discount);
+      $('#couponValue').textContent = state.couponActive ? '-3' : (state.couponClaimed ? '已失效' : '待领取');
+      $('#totalPrice').textContent = `¥${money(payable)}`;
+      $('#feeDetail').innerHTML = `原价：¥${money(original)}<br>优惠抵扣：-¥${money(discount)}<br>实付：¥${money(payable)}`;
+    }
+
+    function formatTime(seconds) {
+      const minute = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const second = String(seconds % 60).padStart(2, '0');
+      return `${minute}:${second}`;
+    }
+
+    function startCouponCountdown() {
+      clearInterval(state.couponTimer);
+      state.couponTimer = setInterval(() => {
+        state.couponSeconds -= 1;
+        if (state.couponSeconds <= 0) {
+          state.couponSeconds = 0;
+          state.couponActive = false;
+          clearInterval(state.couponTimer);
+          $('#couponCountdown').textContent = '优惠已失效';
+          showToast('新人优惠券已失效');
+          updatePrice();
+          return;
+        }
+        $('#couponCountdown').textContent = `距失效 ${formatTime(state.couponSeconds)}`;
+      }, 1000);
+    }
+
+    function claimCoupon(source) {
+      $('#couponModal').classList.remove('show');
+      if (!state.couponClaimed) {
+        state.couponClaimed = true;
+        state.couponActive = true;
+        $('#couponCountdown').textContent = `距失效 ${formatTime(state.couponSeconds)}`;
+        startCouponCountdown();
+        showToast(source === 'close' ? '已自动领取 3 元新人券' : '3 元新人券已领取');
+      }
+      updatePrice();
+    }
+
+    function switchView(view) {
+      state.activeView = view;
+      $('#homeView').classList.toggle('active', view === 'home');
+      $('#addressView').classList.toggle('active', view === 'address');
+      $('#successView').classList.toggle('active', view === 'success');
+    }
+
+    function getSmartExampleText() {
+      return state.addressRole === 'send' ? '杭州菜鸟总部' : '深圳中山大学';
+    }
+
+    function updateSmartExampleHint() {
+      const example = getSmartExampleText();
+      $('#smartAddressInput').placeholder = `输入：${example}`;
+      $('#parseResult').textContent = `示例：输入“${example}”，点击识别后自动解析。`;
+    }
+
+    function openAddress(role) {
+      state.addressRole = role;
+      $('#addressNavTitle').textContent = role === 'send' ? '新增寄件地址' : '新增收件地址';
+      const data = state.addresses[role];
+      $('#regionInput').value = data?.region || '';
+      $('#detailInput').value = data?.detail || '';
+      $('#nameInput').value = data?.name || '';
+      $('#phoneInput').value = data?.phone || '';
+      $('#smartAddressInput').value = '';
+      updateSmartExampleHint();
+      $$('.label-tag').forEach(tag => tag.classList.toggle('active', tag.dataset.label === data?.label));
+      switchView('address');
+    }
+
+    function saveAddress() {
+      const region = $('#regionInput').value.trim();
+      const detail = $('#detailInput').value.trim();
+      if (!region) {
+        showToast('请填写省市区');
+        return;
+      }
+      if (!detail) {
+        showToast('请填写详细地址');
+        return;
+      }
+      const activeLabel = $('.label-tag.active');
+      state.addresses[state.addressRole] = {
+        region,
+        detail,
+        name: $('#nameInput').value.trim(),
+        phone: $('#phoneInput').value.trim(),
+        label: activeLabel ? activeLabel.dataset.label : ''
+      };
+      renderAddresses();
+      switchView('home');
+      showToast('地址已保存');
+    }
+
+    function renderAddresses() {
+      ['send', 'receive'].forEach(role => {
+        const data = state.addresses[role];
+        const title = role === 'send' ? $('#sendTitle') : $('#receiveTitle');
+        const sub = role === 'send' ? $('#sendSub') : $('#receiveSub');
+        if (!data) {
+          title.textContent = role === 'send' ? '添加寄件人地址' : '添加收件人地址';
+          sub.textContent = role === 'send' ? '智能识别填写更快，信息仅本地模拟' : '请选择省市区与详细地址';
+          return;
+        }
+        const person = [data.name, data.phone].filter(Boolean).join(' ');
+        const addressText = [data.region, data.detail].filter(Boolean).join(' ');
+        title.textContent = addressText || (role === 'send' ? '寄件地址待完善' : '收件地址待完善');
+        sub.textContent = `${person || '未填写姓名/手机号'}${data.label ? ` · ${data.label}` : ''}`;
+      });
+    }
+
+    function clearAddressForm() {
+      ['#regionInput', '#detailInput', '#nameInput', '#phoneInput', '#smartAddressInput'].forEach(selector => $(selector).value = '');
+      updateSmartExampleHint();
+      $$('.label-tag').forEach(tag => tag.classList.remove('active'));
+    }
+
+    function parseSmartAddress() {
+      const text = $('#smartAddressInput').value.trim();
+      if (!text) {
+        showToast('请输入要识别的地址文本');
+        return;
+      }
+      const normalized = text.replace(/\s/g, '');
+      const matched = addressParseExamples.find(example => example.keywords.some(keyword => normalized.includes(keyword)));
+      if (!matched) {
+        $('#parseResult').textContent = '暂未识别到内置示例，可试试输入“杭州菜鸟总部”。';
+        showToast('未识别到匹配地址');
+        return;
+      }
+      $('#regionInput').value = matched.region;
+      $('#detailInput').value = matched.detail;
+      $('#nameInput').value = matched.name;
+      $('#phoneInput').value = matched.phone;
+      $$('.label-tag').forEach(tag => tag.classList.toggle('active', tag.dataset.label === matched.label));
+      $('#parseResult').textContent = `已解析：${matched.region} ${matched.detail}`;
+      showToast('已自动解析并填入地址');
+    }
+
+    function fillDemoAddress() {
+      const isSend = state.addressRole === 'send';
+      $('#regionInput').value = isSend ? '浙江省 杭州市 余杭区' : '广东省 深圳市 光明区';
+      $('#detailInput').value = isSend ? '未来科技城文一西路 969 号 3 幢 1201' : '公常路 66 号中山大学深圳校区';
+      $('#nameInput').value = isSend ? '小菜' : '阿裹';
+      $('#phoneInput').value = isSend ? '13800001234' : '13900005678';
+      $$('.label-tag').forEach(tag => tag.classList.toggle('active', tag.dataset.label === (isSend ? '朋友' : '客户')));
+      showToast('已填入示例地址');
+    }
+
+    function hasCompleteContact(role) {
+      const data = state.addresses[role];
+      return Boolean(data?.name?.trim() && data?.phone?.trim());
+    }
+
+    function getAddressText(role) {
+      const data = state.addresses[role] || {};
+      return [data.region, data.detail].filter(Boolean).join(' ') || (role === 'send' ? '寄件地址待完善' : '收件地址待完善');
+    }
+
+    function generatePickupCode() {
+      const number = Math.floor(1000 + Math.random() * 9000);
+      return `CN${number}`;
+    }
+
+    function renderSuccessPage() {
+      const cp = cpMap[state.selectedCp || getCurrentOrder()[0]];
+      const pickupTime = pickupTimes.find(time => time.id === state.selectedPickupTime) || pickupTimes[0];
+      $('#pickupCode').textContent = state.pickupCode;
+      $('#successCpName').textContent = cp.name;
+      $('#successPickupTime').textContent = `${pickupTime.title} ${pickupTime.time}`;
+      $('#successSendAddress').textContent = getAddressText('send');
+      $('#successReceiveAddress').textContent = getAddressText('receive');
+      $('#courierEta').textContent = cp.name === '尊享寄' ? '约 12 分钟' : '约 18 分钟';
+    }
+
+    function placeOrder() {
+      state.pickupCode = generatePickupCode();
+      renderSuccessPage();
+      switchView('success');
+      showToast('下单成功，已生成取件码');
+    }
+
+    function openContactModal() {
+      const send = state.addresses.send || {};
+      const receive = state.addresses.receive || {};
+      $('#sendContactName').value = send.name || '';
+      $('#sendContactPhone').value = send.phone || '';
+      $('#receiveContactName').value = receive.name || '';
+      $('#receiveContactPhone').value = receive.phone || '';
+      $('#contactModal').classList.add('show');
+    }
+
+    function closeContactModal() {
+      $('#contactModal').classList.remove('show');
+    }
+
+    function submitContactInfo() {
+      const sendName = $('#sendContactName').value.trim();
+      const sendPhone = $('#sendContactPhone').value.trim();
+      const receiveName = $('#receiveContactName').value.trim();
+      const receivePhone = $('#receiveContactPhone').value.trim();
+      if (!sendName || !sendPhone || !receiveName || !receivePhone) {
+        showToast('请补全寄件人和收件人姓名、手机号');
+        return;
+      }
+      state.addresses.send = {
+        ...(state.addresses.send || { region: '', detail: '', label: '' }),
+        name: sendName,
+        phone: sendPhone
+      };
+      state.addresses.receive = {
+        ...(state.addresses.receive || { region: '', detail: '', label: '' }),
+        name: receiveName,
+        phone: receivePhone
+      };
+      renderAddresses();
+      closeContactModal();
+      placeOrder();
+    }
+
+    function handleOrderClick() {
+      if (!hasCompleteContact('send') || !hasCompleteContact('receive')) {
+        openContactModal();
+        return;
+      }
+      placeOrder();
+    }
+
+    function showToast(message) {
+      const toast = $('#toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function bindEvents() {
+      $('#itemChips').addEventListener('click', event => {
+        const btn = event.target.closest('[data-item]');
+        if (!btn) return;
+        const item = items.find(entry => entry.name === btn.dataset.item);
+        applyItemSelection(item);
+        $('#customItemResult').textContent = '后台大模型模拟解析物品类型，并自动推荐快递方式。';
+      });
+
+      $('#analyzeItemBtn').addEventListener('click', analyzeCustomItem);
+      $('#customItemInput').addEventListener('keydown', event => {
+        if (event.key === 'Enter') analyzeCustomItem();
+      });
+      $('#voiceItemBtn').addEventListener('click', () => {
+        const btn = $('#voiceItemBtn');
+        btn.classList.add('listening');
+        showToast('语音识别中...');
+        const voices = ['两台电脑', '一箱衣服', '行李两件', '三包零食', '公司合同文件'];
+        const picked = voices[Math.floor(Math.random() * voices.length)];
+        setTimeout(() => {
+          btn.classList.remove('listening');
+          $('#customItemInput').value = picked;
+          analyzeCustomItem();
+        }, 1200);
+      });
+
+      $('#weightInput').addEventListener('input', updatePrice);
+
+      $('#cpList').addEventListener('click', event => {
+        const btn = event.target.closest('[data-cp]');
+        if (!btn) return;
+        state.selectedCp = btn.dataset.cp;
+        renderCpList();
+      });
+
+      $('#pickupTimeList').addEventListener('click', event => {
+        const btn = event.target.closest('[data-time]');
+        if (!btn) return;
+        state.selectedPickupTime = btn.dataset.time;
+        renderPickupTimes();
+        closePickupTimeModal();
+      });
+      $('#openPickupTime').addEventListener('click', openPickupTimeModal);
+      $('#closePickupTime').addEventListener('click', closePickupTimeModal);
+      $('#pickupTimeModal').addEventListener('click', event => {
+        if (event.target.id === 'pickupTimeModal') closePickupTimeModal();
+      });
+
+      $$('[data-open-address]').forEach(row => row.addEventListener('click', () => openAddress(row.dataset.openAddress)));
+      $('#backHome').addEventListener('click', () => switchView('home'));
+      $('#saveAddress').addEventListener('click', saveAddress);
+      $('#clearAddress').addEventListener('click', clearAddressForm);
+      $('#demoFill').addEventListener('click', fillDemoAddress);
+      $('#parseAddress').addEventListener('click', parseSmartAddress);
+      $('#exampleAddressText').addEventListener('click', () => {
+        $('#smartAddressInput').value = getSmartExampleText();
+        parseSmartAddress();
+      });
+      $('#landlineBtn').addEventListener('click', () => showToast('已切换为座机输入，可直接填写区号-号码'));
+
+      $$('.label-tag').forEach(tag => tag.addEventListener('click', () => {
+        tag.classList.toggle('active');
+        $$('.label-tag').filter(other => other !== tag).forEach(other => other.classList.remove('active'));
+      }));
+
+      $$('[data-ai]').forEach(btn => btn.addEventListener('click', () => {
+        const map = { voice: '请说出城市、小区和门牌号', image: '已模拟识别图片中的地址' };
+        showToast(map[btn.dataset.ai]);
+      }));
+
+      $('#detailBtn').addEventListener('click', () => {
+        state.feeDetailOpen = !state.feeDetailOpen;
+        $('#feeDetail').classList.toggle('show', state.feeDetailOpen);
+      });
+
+      $('#orderBtn').addEventListener('click', handleOrderClick);
+      $('#closeContact').addEventListener('click', closeContactModal);
+      $('#submitContact').addEventListener('click', submitContactInfo);
+      $('#contactModal').addEventListener('click', event => {
+        if (event.target.id === 'contactModal') closeContactModal();
+      });
+
+      $('#copyPickupCode').addEventListener('click', () => showToast(`取件码 ${state.pickupCode} 已复制`));
+      $('#callCourier').addEventListener('click', () => showToast('正在呼叫快递员李师傅'));
+      $('#backToHome').addEventListener('click', () => switchView('home'));
+      $('#viewOrderDetail').addEventListener('click', () => showToast('当前为高保真原型，订单详情已在本页展示'));
+
+      $('#claimCoupon').addEventListener('click', () => claimCoupon('claim'));
+      $('#closeCoupon').addEventListener('click', () => claimCoupon('close'));
+      $('#couponModal').addEventListener('click', event => {
+        if (event.target.id === 'couponModal') claimCoupon('close');
+      });
+    }
+
+    function init() {
+      renderItems();
+      state.selectedCp = defaultOrder[0];
+      renderCpList();
+      renderPickupTimes();
+      bindEvents();
+      setTimeout(() => $('#couponModal').classList.add('show'), 450);
+    }
+
+    init();
+  </script>
+</body>
+</html>
