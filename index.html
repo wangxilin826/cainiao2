@@ -176,7 +176,7 @@
     }
 
     .address-card {
-      padding: 16px;
+      padding: 0;
     }
 
     .address-row {
@@ -481,6 +481,7 @@
 
     .carrier-line {
       display: block;
+      color: var(--primary);
     }
 
     .price {
@@ -1389,6 +1390,124 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
+
+    /* ===== 首页内联地址输入 ===== */
+    .addr-block {
+      padding: 14px 16px 12px;
+    }
+    .addr-row-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .addr-input-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1.5px solid var(--line);
+      padding-bottom: 5px;
+    }
+    .addr-inline-input {
+      flex: 1;
+      min-width: 0;
+      height: 34px;
+      background: transparent;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      outline: none;
+    }
+    .addr-inline-input::placeholder {
+      color: #c8cdd6;
+      font-weight: 400;
+      font-size: 13px;
+    }
+    .addr-clear-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #c3c8d1;
+      color: #fff;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: 0.2s ease;
+      padding: 0;
+      line-height: 1;
+    }
+    .addr-clear-btn:active { transform: scale(0.88); }
+    .addr-hint-text {
+      margin: 4px 0 0 44px;
+      font-size: 11px;
+      color: #c8cdd6;
+      line-height: 1.4;
+    }
+    .addr-action-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 9px;
+      padding-left: 44px;
+    }
+    .addr-ai-btn {
+      height: 26px;
+      padding: 0 9px;
+      border-radius: 999px;
+      color: #4776ad;
+      background: var(--primary-light);
+      font-size: 11px;
+      transition: 0.2s ease;
+      white-space: nowrap;
+    }
+    .addr-ai-btn:active {
+      transform: scale(0.95);
+      background: var(--primary-soft);
+    }
+    .addr-manual-btn {
+      margin-left: auto;
+      height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: 0.2s ease;
+    }
+    .addr-manual-btn:active { transform: scale(0.95); }
+    .addr-divider {
+      height: 1px;
+      margin: 0 16px;
+      background: repeating-linear-gradient(to right, var(--line) 0, var(--line) 4px, transparent 4px, transparent 8px);
+    }
+    .addr-confirm-btn {
+      height: 28px;
+      padding: 0 11px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      white-space: nowrap;
+      transition: 0.18s ease;
+      animation: addrBtnIn 0.18s ease both;
+    }
+    .addr-confirm-btn:disabled {
+      opacity: 0.65;
+      cursor: default;
+    }
+    .addr-confirm-btn:not(:disabled):active { transform: scale(0.93); }
+    @keyframes addrBtnIn {
+      from { opacity: 0; transform: scale(0.75); }
+      to   { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -1401,21 +1520,38 @@
           <span>智能寄件推荐</span>
         </div>
         <div class="card address-card">
-          <div class="address-row" data-open-address="send">
-            <div class="badge send">寄</div>
-            <div class="address-main">
-              <strong id="sendTitle">添加寄件人地址</strong>
-              <span id="sendSub">智能识别填写更快，信息仅本地模拟</span>
+          <!-- 寄件人地址 -->
+          <div class="addr-block">
+            <div class="addr-row-top">
+              <div class="badge send">寄</div>
+              <div class="addr-input-area">
+                <input id="sendAddrInput" class="addr-inline-input" placeholder="支持模糊输入，试试输入城市+小区 ~" />
+                <button id="confirmSendAddr" class="addr-confirm-btn" style="display:none">识别</button>
+                <button id="clearSendAddr" class="addr-clear-btn" style="display:none">✕</button>
+              </div>
             </div>
-            <div class="arrow">›</div>
+            <div class="addr-action-row">
+              <button class="addr-ai-btn" data-addr-role="send" data-addr-ai="voice">🎤️ 语音识别</button>
+              <button class="addr-ai-btn" data-addr-role="send" data-addr-ai="image">🖼️ 图片识别</button>
+              <button class="addr-manual-btn" data-manual-role="send">手动选择 ›</button>
+            </div>
           </div>
-          <div class="address-row" data-open-address="receive">
-            <div class="badge receive">收</div>
-            <div class="address-main">
-              <strong id="receiveTitle">添加收件人地址</strong>
-              <span id="receiveSub">请选择省市区与详细地址</span>
+          <div class="addr-divider"></div>
+          <!-- 收件人地址 -->
+          <div class="addr-block">
+            <div class="addr-row-top">
+              <div class="badge receive">收</div>
+              <div class="addr-input-area">
+                <input id="receiveAddrInput" class="addr-inline-input" placeholder="支持模糊输入，试试输入城市+小区 ~" />
+                <button id="confirmReceiveAddr" class="addr-confirm-btn" style="display:none">识别</button>
+                <button id="clearReceiveAddr" class="addr-clear-btn" style="display:none">✕</button>
+              </div>
             </div>
-            <div class="arrow">›</div>
+            <div class="addr-action-row">
+              <button class="addr-ai-btn" data-addr-role="receive" data-addr-ai="voice">🎤️ 语音识别</button>
+              <button class="addr-ai-btn" data-addr-role="receive" data-addr-ai="image">🖼️ 图片识别</button>
+              <button class="addr-manual-btn" data-manual-role="receive">手动选择 ›</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1898,6 +2034,120 @@
       $('#parseResult').textContent = `示例：输入“${example}”，点击识别后自动解析。`;
     }
 
+    /* ===== 首页内联地址相关新函数 ===== */
+    function updateAddrDisplay(role) {
+      const input = role === 'send' ? $('#sendAddrInput') : $('#receiveAddrInput');
+      const clearBtn = role === 'send' ? $('#clearSendAddr') : $('#clearReceiveAddr');
+      const confirmBtn = role === 'send' ? $('#confirmSendAddr') : $('#confirmReceiveAddr');
+      if (!input) return;
+      const data = state.addresses[role];
+      const addrText = data ? [data.region, data.detail].filter(Boolean).join(' ') : '';
+      input.value = addrText;
+      clearBtn.style.display = addrText ? '' : 'none';
+      if (confirmBtn) confirmBtn.style.display = 'none';
+    }
+
+    function clearAddrInput(role) {
+      state.addresses[role] = null;
+      updateAddrDisplay(role);
+    }
+
+    function handleAddrInputChange(role) {
+      const input = role === 'send' ? $('#sendAddrInput') : $('#receiveAddrInput');
+      const clearBtn = role === 'send' ? $('#clearSendAddr') : $('#clearReceiveAddr');
+      const confirmBtn = role === 'send' ? $('#confirmSendAddr') : $('#confirmReceiveAddr');
+      const val = input.value.trim();
+      if (val) {
+        if (!state.addresses[role]) {
+          state.addresses[role] = { region: val, detail: '', name: '', phone: '', label: '' };
+        } else {
+          state.addresses[role].region = val;
+          state.addresses[role].detail = '';
+        }
+        clearBtn.style.display = 'none';
+        confirmBtn.style.display = '';
+      } else {
+        state.addresses[role] = null;
+        clearBtn.style.display = 'none';
+        confirmBtn.style.display = 'none';
+      }
+    }
+
+    const addrAiSamples = {
+      send: {
+        voice: ['浙江省 杭州市 余杭区 良渚新城万祹1期公园里3栋', '上海市 浦东新区 世纪大道100号环球金融中心', '北京市 朝阳区 三里屯SOHO東区'],
+        image: { region: '浙江省 杭州市 西湖区', detail: '文三路街道西溪路558号西溪天堂艺术中心', name: '', phone: '' }
+      },
+      receive: {
+        voice: ['广东省 深圳市 南山区 科技园南区科苑路', '江苏省 南京市 鼓楼区 汉口路22号南京大学', '四川省 成都市 武侯区 天府大道中段500号'],
+        image: { region: '广东省 广州市 天河区', detail: '天河路385号太古汇购物中心2楼', name: '', phone: '' }
+      }
+    };
+
+    function handleAddrVoice(role) {
+      showToast('语音识别中...');
+      const voices = addrAiSamples[role].voice;
+      const picked = voices[Math.floor(Math.random() * voices.length)];
+      setTimeout(() => {
+        const parts = picked.split(' ');
+        const region = parts.slice(0, 3).join(' ');
+        const detail = parts.slice(3).join(' ');
+        state.addresses[role] = { region, detail, name: '', phone: '', label: '' };
+        updateAddrDisplay(role);
+        showToast('语音识别完成，已填入地址');
+      }, 1200);
+    }
+
+    function handleAddrImage(role) {
+      showToast('正在识别图片中的地址...');
+      setTimeout(() => {
+        const sample = addrAiSamples[role].image;
+        state.addresses[role] = { ...sample, label: '' };
+        updateAddrDisplay(role);
+        showToast('图片地址识别完成，已填入');
+      }, 1400);
+    }
+
+    /* 首页模糊输入视规则表 */
+    const inlineAddrRules = [
+      { keys: ['菜鸟总部', '杭州菜鸟', '菜鸟网络', '菜鸟'], region: '浙江省 杭州市 余杭区', detail: '文一西路 969 号菜鸟网络总部园区' },
+      { keys: ['西湖', '杭州西湖', '西湖景区'], region: '浙江省 杭州市 西湖区', detail: '龙井路 1 号西湖景区景区内' },
+      { keys: ['阿里', '淘宝', '天猫', '阿里巴巴', '阿里西溪'], region: '浙江省 杭州市 余杭区', detail: '余杭塘路 699 号阿里巴巴西溪园区' },
+      { keys: ['中山大学深圳', '中大深圳'], region: '广东省 深圳市 光明区', detail: '公常路 66 号中山大学深圳校区' },
+      { keys: ['陆家嘴', '浦东陆家嘴', '上海陆家嘴'], region: '上海市 浦东新区', detail: '陆家嘴环路 1000 号环球金融中心' },
+      { keys: ['三里屯', '北京三里屯'], region: '北京市 朝阳区', detail: '工体北路 4 号三里屯太古里南区' },
+      { keys: ['中关村', '北京中关村'], region: '北京市 海淀区', detail: '中关村大街 27 号中关村创业大厦' },
+      { keys: ['万达广场', '杭州万达'], region: '浙江省 杭州市 江干区', detail: '九堡镇万达广场 1 号' },
+      { keys: ['武林广场', '武林'], region: '浙江省 杭州市 拱墅区', detail: '武林广场 1 号浙江展览馆' },
+      { keys: ['南京路', '上海南京路'], region: '上海市 黄浦区', detail: '南京东路 830 号上海第一百货' },
+    ];
+
+    function inlineParseAddress(role) {
+      const input = role === 'send' ? $('#sendAddrInput') : $('#receiveAddrInput');
+      const confirmBtn = role === 'send' ? $('#confirmSendAddr') : $('#confirmReceiveAddr');
+      const text = input.value.trim();
+      if (!text) { showToast('请先输入地址关键词'); return; }
+      // 模拟识别中 loading
+      confirmBtn.textContent = '识别中…';
+      confirmBtn.disabled = true;
+      const normalized = text.replace(/\s/g, '').toLowerCase();
+      const rule = inlineAddrRules.find(r => r.keys.some(k => normalized.includes(k.toLowerCase())));
+      setTimeout(() => {
+        confirmBtn.textContent = '识别';
+        confirmBtn.disabled = false;
+        if (rule) {
+          state.addresses[role] = { region: rule.region, detail: rule.detail, name: '', phone: '', label: '' };
+          updateAddrDisplay(role);
+          showToast('✅ 地址识别完成，已填入');
+        } else {
+          // 未命中规则，将输入内容作为地址存储
+          state.addresses[role] = { region: text, detail: '', name: '', phone: '', label: '' };
+          updateAddrDisplay(role);
+          showToast('地址已填入，可点「手动选择」进一步完善');
+        }
+      }, 800);
+    }
+
     function openAddress(role) {
       state.addressRole = role;
       $('#addressNavTitle').textContent = role === 'send' ? '新增寄件地址' : '新增收件地址';
@@ -2017,20 +2267,7 @@
     }
 
     function renderAddresses() {
-      ['send', 'receive'].forEach(role => {
-        const data = state.addresses[role];
-        const title = role === 'send' ? $('#sendTitle') : $('#receiveTitle');
-        const sub = role === 'send' ? $('#sendSub') : $('#receiveSub');
-        if (!data) {
-          title.textContent = role === 'send' ? '添加寄件人地址' : '添加收件人地址';
-          sub.textContent = role === 'send' ? '智能识别填写更快，信息仅本地模拟' : '请选择省市区与详细地址';
-          return;
-        }
-        const person = [data.name, data.phone].filter(Boolean).join(' ');
-        const addressText = [data.region, data.detail].filter(Boolean).join(' ');
-        title.textContent = addressText || (role === 'send' ? '寄件地址待完善' : '收件地址待完善');
-        sub.textContent = `${person || '未填写姓名/手机号'}${data.label ? ` · ${data.label}` : ''}`;
-      });
+      ['send', 'receive'].forEach(role => updateAddrDisplay(role));
     }
 
     function clearAddressForm() {
@@ -2208,7 +2445,27 @@
         if (event.target.id === 'pickupTimeModal') closePickupTimeModal();
       });
 
-      $$('[data-open-address]').forEach(row => row.addEventListener('click', () => openAddress(row.dataset.openAddress)));
+      // 首页内联地址：清除按钮
+      $('#clearSendAddr').addEventListener('click', () => clearAddrInput('send'));
+      $('#clearReceiveAddr').addEventListener('click', () => clearAddrInput('receive'));
+      // 首页内联地址：识别按钮
+      $('#confirmSendAddr').addEventListener('click', () => inlineParseAddress('send'));
+      $('#confirmReceiveAddr').addEventListener('click', () => inlineParseAddress('receive'));
+      // 首页内联地址：输入变化
+      $('#sendAddrInput').addEventListener('input', () => handleAddrInputChange('send'));
+      $('#receiveAddrInput').addEventListener('input', () => handleAddrInputChange('receive'));
+      // 首页内联地址：AI识别按钮 + 手动选择（事件姓委托）
+      document.querySelector('.address-card').addEventListener('click', e => {
+        const aiBtn = e.target.closest('[data-addr-ai]');
+        if (aiBtn) {
+          const role = aiBtn.dataset.addrRole;
+          if (aiBtn.dataset.addrAi === 'voice') handleAddrVoice(role);
+          else if (aiBtn.dataset.addrAi === 'image') handleAddrImage(role);
+          return;
+        }
+        const manualBtn = e.target.closest('[data-manual-role]');
+        if (manualBtn) openAddress(manualBtn.dataset.manualRole);
+      });
       $('#backHome').addEventListener('click', () => switchView('home'));
       $('#saveAddress').addEventListener('click', saveAddress);
       $('#clearAddress').addEventListener('click', clearAddressForm);
@@ -2255,11 +2512,22 @@
     }
 
     function init() {
+      // 首页寄件人地址自动填入当前 POI 定位
+      const defaultSendPOI = mockPOIs.find(p => p.role === 'send') || mockPOIs[0];
+      state.addresses.send = {
+        region: defaultSendPOI.region,
+        detail: defaultSendPOI.detail,
+        name: '',
+        phone: '',
+        label: ''
+      };
       renderItems();
       state.selectedCp = defaultOrder[0];
       renderCpList();
       renderPickupTimes();
       bindEvents();
+      updateAddrDisplay('send');
+      updateAddrDisplay('receive');
       setTimeout(() => $('#couponModal').classList.add('show'), 450);
     }
 
