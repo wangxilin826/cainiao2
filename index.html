@@ -1508,6 +1508,151 @@
       from { opacity: 0; transform: scale(0.75); }
       to   { opacity: 1; transform: scale(1); }
     }
+
+    /* ===== 查价器 ===== */
+    .price-entry-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 13px; border-radius: 14px; margin-bottom: 10px;
+      background: linear-gradient(135deg, #fff8e6 0%, #fffcf4 100%);
+      border: 1px solid #ffe9b0;
+    }
+    .price-entry-banner span { font-size: 15px; color: #7a5c00; font-weight: 500; }
+    .price-entry-btn {
+      height: 30px; padding: 0 13px; border-radius: 999px;
+      background: linear-gradient(135deg, #ff9500 0%, #ffb800 100%);
+      color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; transition: 0.2s ease;
+    }
+    .price-entry-btn:active { transform: scale(0.95); }
+    .price-route-row { display: flex; align-items: center; gap: 8px; }
+    .price-city-sel {
+      flex: 1; min-height: 68px; border-radius: 16px;
+      background: #f7f9fc; border: 1.5px solid var(--line);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      transition: 0.2s ease;
+    }
+    .price-city-sel:active { transform: scale(0.97); }
+    .price-city-sel.has-city { background: var(--primary-soft); border-color: rgba(22,119,255,0.35); }
+    .pcs-label { font-size: 11px; color: var(--muted); }
+    .pcs-city { font-size: 16px; color: var(--muted); font-weight: 500; }
+    .price-city-sel.has-city .pcs-city { color: var(--text); font-weight: 700; }
+    .swap-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #edf0f5; color: var(--primary); font-size: 18px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.3s ease;
+    }
+    .swap-btn:active { transform: rotate(180deg) scale(0.9); }
+    .price-weight-chips { display: flex; gap: 6px; flex: 1; }
+    .price-weight-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+    .pw-label { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+    .weight-stepper {
+      display: flex; align-items: center; gap: 0; flex: 1; justify-content: flex-end;
+    }
+    .ws-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #edf0f5; color: var(--primary);
+      font-size: 18px; font-weight: 400; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: 0.15s ease; flex-shrink: 0;
+    }
+    .ws-btn:active { transform: scale(0.88); background: var(--primary-soft); }
+    .ws-btn:disabled { color: #c3c8d1; background: #f4f6fa; cursor: default; }
+    .ws-val {
+      min-width: 52px; text-align: center;
+      font-size: 15px; font-weight: 700; color: var(--text);
+    }
+    .ws-unit { font-size: 12px; color: var(--muted); margin-left: 2px; }
+    .price-disclaimer {
+      font-size: 11px; color: var(--muted); text-align: center;
+      margin: -2px 0 8px; padding: 0 4px; line-height: 1.5;
+    }
+    .price-empty-hint { text-align: center; padding: 36px 20px; color: var(--muted); }
+    .price-empty-icon { font-size: 42px; margin-bottom: 12px; }
+    .price-empty-hint p { font-size: 14px; line-height: 1.7; margin: 0; }
+    .price-svc-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; border-radius: 18px;
+      background: #fff; border: 1.5px solid var(--line);
+      margin-bottom: 10px; transition: 0.2s ease; cursor: pointer;
+    }
+    .price-svc-card.active {
+      border-color: rgba(22,119,255,0.55); background: var(--primary-light);
+      box-shadow: 0 6px 18px rgba(22,119,255,0.1);
+    }
+    .psc-radio {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid #c3c8d1; flex-shrink: 0; transition: 0.2s ease;
+    }
+    .psc-radio.checked { border-color: var(--primary); background: var(--primary); box-shadow: inset 0 0 0 3px #fff; }
+    .psc-icon { font-size: 26px; flex-shrink: 0; width: 34px; text-align: center; }
+    .psc-info { flex: 1; min-width: 0; }
+    .psc-info strong { display: block; font-size: 15px; line-height: 1.3; }
+    .psc-info span { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .psc-price { text-align: right; flex-shrink: 0; }
+    .psc-price small { display: block; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+    .psc-price strong { display: block; font-size: 20px; color: var(--red); font-weight: 800; line-height: 1.1; }
+    .price-bottom-bar {
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: min(100vw, 414px); min-width: 375px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(255,255,255,0.94); backdrop-filter: blur(18px);
+      box-shadow: 0 -8px 26px rgba(31,35,41,0.08); z-index: 20;
+    }
+    .price-sel-info { font-size: 14px; color: #4e5969; line-height: 1.5; font-weight: 600; }
+    .price-sel-info small { display: block; color: var(--muted); font-size: 11px; font-weight: 400; }
+    .price-history-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 13px; border-radius: 14px; margin-bottom: 12px;
+      background: var(--primary-light); color: #33699f; font-size: 12px;
+    }
+    .city-picker-sheet {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(100vw, 414px);
+      min-width: 375px;
+      top: 0; bottom: 0;
+      display: none;
+      align-items: flex-end;
+      background: rgba(8,15,26,0.5);
+      z-index: 55;
+    }
+    .city-picker-sheet.show { display: flex; }
+    .city-picker-panel {
+      width: 100%; max-height: 68vh; background: #fff;
+      border-radius: 22px 22px 0 0; overflow: hidden;
+      display: flex; flex-direction: column;
+      animation: slideUp 0.28s cubic-bezier(.2,.9,.2,1.05) both;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .city-picker-header {
+      padding: 16px 18px 13px; display: flex; align-items: center;
+      justify-content: space-between; border-bottom: 1px solid var(--line); flex-shrink: 0;
+    }
+    .city-picker-header strong { font-size: 16px; }
+    .city-picker-body { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+    .province-list { width: 90px; overflow-y: auto; border-right: 1px solid var(--line); flex-shrink: 0; }
+    .province-item {
+      width: 100%; padding: 11px 6px; font-size: 12px; color: var(--text);
+      background: transparent; border: none; border-bottom: 1px solid var(--line);
+      text-align: center; line-height: 1.3; transition: 0.15s ease;
+    }
+    .province-item.active { color: var(--primary); background: var(--primary-light); font-weight: 700; }
+    .city-grid-list {
+      flex: 1; overflow-y: auto; padding: 12px 10px;
+      display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start;
+    }
+    .city-item {
+      height: 34px; padding: 0 14px; border-radius: 10px;
+      background: #f4f6fa; color: var(--text); font-size: 13px;
+      border: 1.5px solid transparent; transition: 0.15s ease;
+    }
+    .city-item.active { color: var(--primary); background: var(--primary-soft); border-color: rgba(22,119,255,0.35); font-weight: 700; }
+    .city-item:active { transform: scale(0.95); }
   </style>
 </head>
 <body>
@@ -1518,6 +1663,11 @@
         <div class="hero-title">
           <strong>菜鸟裹裹</strong>
           <span>智能寄件推荐</span>
+        </div>
+        <!-- P0-1: 查价入口 -->
+        <div class="price-entry-banner">
+          <span>填写信息太麻烦？</span>
+          <button id="openPriceBtn" class="price-entry-btn">试试去查价 →</button>
         </div>
         <div class="card address-card">
           <!-- 寄件人地址 -->
@@ -1755,6 +1905,74 @@
       </div>
     </section>
 
+    <!-- 查价页面 -->
+    <section id="priceView" class="view">
+      <div class="status-space"></div>
+      <div class="nav">
+        <button id="backFromPrice" class="left">‹ 返回</button>
+        <h1>运费查询</h1>
+      </div>
+      <div class="page" style="padding-top:10px">
+        <!-- P1-3: 历史记录条 -->
+        <div id="priceHistoryBar" class="price-history-bar" style="display:none">
+          📍 已自动填入上次查询路线：<strong id="priceHistoryText"></strong>
+        </div>
+        <!-- P0-2: 省市选择 + P1-1: 重量快选 -->
+        <div class="card pad">
+          <div class="price-route-row">
+            <button id="fromCityBtn" class="price-city-sel">
+              <span class="pcs-label">发货地</span>
+              <strong id="fromCityText" class="pcs-city">选择城市</strong>
+            </button>
+            <button id="swapCities" class="swap-btn">⇄</button>
+            <button id="toCityBtn" class="price-city-sel">
+              <span class="pcs-label">收货地</span>
+              <strong id="toCityText" class="pcs-city">选择城市</strong>
+            </button>
+          </div>
+          <div class="price-weight-row">
+            <span class="pw-label">重量</span>
+            <div class="weight-stepper">
+              <button id="weightMinus" class="ws-btn" disabled>−</button>
+              <span class="ws-val" id="weightVal">1</span>
+              <span class="ws-unit">kg</span>
+              <button id="weightPlus" class="ws-btn">+</button>
+            </div>
+          </div>
+        </div>
+        <!-- P1-2: 价格声明 -->
+        <div class="price-disclaimer">💡 价格为参考价，实际费用以下单结算时为准</div>
+        <!-- P0-3: 服务卡片（选城市后展示） -->
+        <div id="priceEmptyHint" class="price-empty-hint">
+          <div class="price-empty-icon">🔍</div>
+          <p>选择发货地和收货地<br>即可查看各服务预估运费</p>
+        </div>
+        <div id="priceSvcList" style="display:none"></div>
+      </div>
+      <!-- P0-4: 底部下单栏 -->
+      <div class="price-bottom-bar">
+        <div class="price-sel-info" id="priceSelInfo">
+          请先选择城市
+          <small id="priceSelSub"></small>
+        </div>
+        <button id="priceOrderBtn" class="order-btn" style="width:120px;font-size:15px" disabled>去下单 ›</button>
+      </div>
+    </section>
+
+    <!-- 城市选择器 -->
+    <div id="cityPickerSheet" class="city-picker-sheet">
+      <div class="city-picker-panel">
+        <div class="city-picker-header">
+          <strong id="cityPickerTitle">选择发货城市</strong>
+          <button id="closeCityPicker" class="modal-close">×</button>
+        </div>
+        <div class="city-picker-body">
+          <div id="provinceList" class="province-list"></div>
+          <div id="cityGridList" class="city-grid-list"></div>
+        </div>
+      </div>
+    </div>
+
     <div id="couponModal" class="modal-mask">
       <div class="coupon-modal">
         <button id="closeCoupon" class="modal-close">×</button>
@@ -1820,6 +2038,11 @@
       addresses: {
         send: null,
         receive: null
+      },
+      priceQuery: {
+        fromProvince: '', fromCity: '',
+        toProvince: '', toCity: '',
+        weight: 1, selectedCp: 'standard', hasQueried: false
       }
     };
 
@@ -1853,6 +2076,37 @@
     ];
 
     const defaultOrder = ['standard', 'budget', 'premium'];
+
+    /* ===== 查价器数据 ===== */
+    const provinceCityData = {
+      '北京市': ['北京市'], '上海市': ['上海市'], '天津市': ['天津市'], '重庆市': ['重庆市'],
+      '浙江省': ['杭州市','宁波市','温州市','绍兴市','嘉兴市','湖州市','金华市','台州市'],
+      '广东省': ['广州市','深圳市','东莞市','佛山市','珠海市','惠州市','中山市','汕头市'],
+      '江苏省': ['南京市','苏州市','无锡市','南通市','扬州市','常州市','徐州市','镇江市'],
+      '四川省': ['成都市','绵阳市','德阳市','泸州市','南充市','宜宾市'],
+      '湖北省': ['武汉市','宜昌市','襄阳市','荆州市'],
+      '山东省': ['济南市','青岛市','烟台市','威海市','潍坊市','济宁市'],
+      '福建省': ['福州市','厦门市','泉州市','漳州市'],
+      '湖南省': ['长沙市','株洲市','岳阳市','常德市'],
+      '河南省': ['郑州市','洛阳市','开封市','许昌市'],
+      '陕西省': ['西安市','咸阳市','宝鸡市','渭南市'],
+      '安徽省': ['合肥市','芜湖市','蚌埠市','马鞍山市'],
+      '河北省': ['石家庄市','唐山市','保定市','廊坊市'],
+      '辽宁省': ['沈阳市','大连市','鞍山市','辽阳市'],
+      '江西省': ['南昌市','赣州市','九江市'],
+      '广西': ['南宁市','桂林市','柳州市'],
+      '云南省': ['昆明市','曲靖市','大理市'],
+      '贵州省': ['贵阳市','遵义市','毕节市'],
+      '山西省': ['太原市','大同市','晋城市'],
+    };
+    const priceCpData = [
+      { key: 'standard', icon: '📦', name: '标准寄', tag: '两小时上门，时效稳定', base: 12, perKg: 2.2 },
+      { key: 'budget',   icon: '💸', name: '特惠寄', tag: '当日上门，价格最优',   base: 8,  perKg: 1.8 },
+      { key: 'premium',  icon: '⭐', name: '尊享寄', tag: '1小时上门，时效保障',  base: 18, perKg: 3.2 },
+      { key: 'large',    icon: '🚛', name: '寄大件', tag: '大件重货，专属运力',   base: 25, perKg: 2.8 },
+    ];
+    let _pickerRole = 'from';
+    let _pickerProvince = '浙江省';
     const addressParseExamples = [
       {
         keywords: ['杭州菜鸟总部', '菜鸟总部', '杭州菜鸟'],
@@ -2022,6 +2276,7 @@
       $('#homeView').classList.toggle('active', view === 'home');
       $('#addressView').classList.toggle('active', view === 'address');
       $('#successView').classList.toggle('active', view === 'success');
+      $('#priceView').classList.toggle('active', view === 'price');
     }
 
     function getSmartExampleText() {
@@ -2395,6 +2650,146 @@
       showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
     }
 
+    /* ===== 查价器函数 ===== */
+    function openPriceView() {
+      const q = state.priceQuery;
+      // 同步寄件页寄件地址到发货地（仅在未查询过时同步，避免覆盖用户修改过的历史）
+      if (!q.hasQueried) {
+        const sendAddr = state.addresses.send;
+        if (sendAddr && sendAddr.region) {
+          // region 格式如 "浙江省 杭州市 余杭区"，取第二节作为城市
+          const parts = sendAddr.region.trim().split(/\s+/);
+          const city = parts.length >= 2 ? parts[1] : parts[0];
+          q.fromCity = city;
+          q.fromProvince = parts[0] || '';
+        } else {
+          q.fromCity = '';
+          q.fromProvince = '';
+        }
+      }
+      switchView('price');
+      // P1-3: 如有历史记录，自动展示
+      if (q.hasQueried && q.fromCity && q.toCity) {
+        $('#priceHistoryBar').style.display = '';
+        $('#priceHistoryText').textContent = q.fromCity + '→' + q.toCity;
+      } else {
+        $('#priceHistoryBar').style.display = 'none';
+      }
+      renderPriceView();
+    }
+
+    function renderPriceView() {
+      const q = state.priceQuery;
+      // 更新城市按钮
+      const fromEl = $('#fromCityText'), toEl = $('#toCityText');
+      fromEl.textContent = q.fromCity || '选择城市';
+      toEl.textContent   = q.toCity   || '选择城市';
+      $('#fromCityBtn').classList.toggle('has-city', !!q.fromCity);
+      $('#toCityBtn').classList.toggle('has-city',   !!q.toCity);
+      // 重量展示
+      $('#weightVal').textContent = q.weight;
+      $('#weightMinus').disabled = q.weight <= 1;
+      // 卡片区域
+      const hasBoth = !!(q.fromCity && q.toCity);
+      $('#priceEmptyHint').style.display = hasBoth ? 'none' : '';
+      $('#priceSvcList').style.display   = hasBoth ? '' : 'none';
+      if (hasBoth) renderPriceCards();
+      updatePriceBottomBar();
+    }
+
+    function renderPriceCards() {
+      const q = state.priceQuery;
+      $('#priceSvcList').innerHTML = priceCpData.map(cp => {
+        const price = Math.ceil(cp.base + Math.max(0, q.weight - 1) * cp.perKg);
+        const sel = q.selectedCp === cp.key;
+        return `<div class="price-svc-card ${sel ? 'active' : ''}" data-cp="${cp.key}">
+          <div class="psc-radio ${sel ? 'checked' : ''}"></div>
+          <div class="psc-icon">${cp.icon}</div>
+          <div class="psc-info"><strong>${cp.name}</strong><span>${cp.tag}</span></div>
+          <div class="psc-price"><small>预估价</small><strong>¥${price}</strong></div>
+        </div>`;
+      }).join('');
+    }
+
+    function updatePriceBottomBar() {
+      const q = state.priceQuery;
+      const hasBoth = !!(q.fromCity && q.toCity);
+      const btn = $('#priceOrderBtn');
+      const infoEl = $('#priceSelInfo');
+      const subEl  = $('#priceSelSub');
+      if (hasBoth) {
+        const cp = priceCpData.find(c => c.key === q.selectedCp) || priceCpData[0];
+        const price = Math.ceil(cp.base + Math.max(0, q.weight - 1) * cp.perKg);
+        infoEl.firstChild.nodeValue = '预估价：¥' + price;
+        subEl.textContent = '价格为参考价，实际费用以结算为准';
+        btn.disabled = false;
+      } else {
+        infoEl.firstChild.nodeValue = '请先选择城市';
+        subEl.textContent = '';
+        btn.disabled = true;
+      }
+    }
+
+    function openCityPicker(role) {
+      _pickerRole = role;
+      _pickerProvince = Object.keys(provinceCityData)[0];
+      $('#cityPickerTitle').textContent = role === 'from' ? '选择发货城市' : '选择收货城市';
+      renderProvinceList();
+      renderCityGridList();
+      $('#cityPickerSheet').classList.add('show');
+    }
+
+    function closeCityPicker() {
+      $('#cityPickerSheet').classList.remove('show');
+    }
+
+    function renderProvinceList() {
+      $('#provinceList').innerHTML = Object.keys(provinceCityData).map(p =>
+        `<button class="province-item ${_pickerProvince === p ? 'active' : ''}" data-prov="${p}">${p}</button>`
+      ).join('');
+    }
+
+    function renderCityGridList() {
+      const cities = provinceCityData[_pickerProvince] || [];
+      const q = state.priceQuery;
+      const cur = _pickerRole === 'from' ? q.fromCity : q.toCity;
+      $('#cityGridList').innerHTML = cities.map(c =>
+        `<button class="city-item ${cur === c ? 'active' : ''}" data-city="${c}">${c}</button>`
+      ).join('');
+    }
+
+    function selectCity(city) {
+      if (_pickerRole === 'from') {
+        state.priceQuery.fromProvince = _pickerProvince;
+        state.priceQuery.fromCity = city;
+      } else {
+        state.priceQuery.toProvince = _pickerProvince;
+        state.priceQuery.toCity = city;
+      }
+      closeCityPicker();
+      renderPriceView();
+    }
+
+    function swapCities() {
+      const q = state.priceQuery;
+      [q.fromCity, q.toCity] = [q.toCity, q.fromCity];
+      [q.fromProvince, q.toProvince] = [q.toProvince, q.fromProvince];
+      renderPriceView();
+    }
+
+    function doPriceOrder() {
+      const q = state.priceQuery;
+      if (!q.fromCity || !q.toCity) { showToast('请先选择发货和收货城市'); return; }
+      // P1-3: 标记已查询
+      q.hasQueried = true;
+      // P0-4: 带入已选 CP 到首页
+      state.selectedCp = q.selectedCp;
+      renderCpList();
+      switchView('home');
+      const cp = priceCpData.find(c => c.key === q.selectedCp);
+      showToast('已选「' + (cp ? cp.name : '') + '」，继续填写地址下单');
+    }
+
     function bindEvents() {
       $('#mapLocateBtn').addEventListener('click', locateOnMap);
       $('#mapUseAddrBtn').addEventListener('click', useMapAddress);
@@ -2509,6 +2904,53 @@
       $('#couponModal').addEventListener('click', event => {
         if (event.target.id === 'couponModal') claimCoupon('close');
       });
+
+      // ===== 查价器事件 =====
+      $('#openPriceBtn').addEventListener('click', openPriceView);
+      $('#backFromPrice').addEventListener('click', () => switchView('home'));
+      $('#fromCityBtn').addEventListener('click', () => openCityPicker('from'));
+      $('#toCityBtn').addEventListener('click', () => openCityPicker('to'));
+      $('#swapCities').addEventListener('click', swapCities);
+      $('#closeCityPicker').addEventListener('click', closeCityPicker);
+      $('#cityPickerSheet').addEventListener('click', e => {
+        if (e.target.id === 'cityPickerSheet') closeCityPicker();
+      });
+      $('#provinceList').addEventListener('click', e => {
+        const btn = e.target.closest('[data-prov]');
+        if (!btn) return;
+        _pickerProvince = btn.dataset.prov;
+        renderProvinceList();
+        renderCityGridList();
+      });
+      $('#cityGridList').addEventListener('click', e => {
+        const btn = e.target.closest('[data-city]');
+        if (btn) selectCity(btn.dataset.city);
+      });
+      // 重量步进器
+      function updateWeightStepper() {
+        const w = state.priceQuery.weight;
+        $('#weightVal').textContent = w;
+        $('#weightMinus').disabled = w <= 1;
+      }
+      $('#weightMinus').addEventListener('click', () => {
+        if (state.priceQuery.weight <= 1) return;
+        state.priceQuery.weight = Math.max(1, state.priceQuery.weight - 1);
+        updateWeightStepper();
+        if (state.priceQuery.fromCity && state.priceQuery.toCity) { renderPriceCards(); updatePriceBottomBar(); }
+      });
+      $('#weightPlus').addEventListener('click', () => {
+        state.priceQuery.weight = Math.min(50, state.priceQuery.weight + 1);
+        updateWeightStepper();
+        if (state.priceQuery.fromCity && state.priceQuery.toCity) { renderPriceCards(); updatePriceBottomBar(); }
+      });
+      $('#priceSvcList').addEventListener('click', e => {
+        const card = e.target.closest('[data-cp]');
+        if (!card) return;
+        state.priceQuery.selectedCp = card.dataset.cp;
+        renderPriceCards();
+        updatePriceBottomBar();
+      });
+      $('#priceOrderBtn').addEventListener('click', doPriceOrder);
     }
 
     function init() {
@@ -2528,7 +2970,7 @@
       bindEvents();
       updateAddrDisplay('send');
       updateAddrDisplay('receive');
-      setTimeout(() => $('#couponModal').classList.add('show'), 450);
+      // setTimeout(() => $('#couponModal').classList.add('show'), 450); // 新人券弹窗已屏蔽
     }
 
     init();
