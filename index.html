@@ -1561,9 +1561,15 @@
     .ws-btn:active { transform: scale(0.88); background: var(--primary-soft); }
     .ws-btn:disabled { color: #c3c8d1; background: #f4f6fa; cursor: default; }
     .ws-val {
-      min-width: 52px; text-align: center;
+      width: 44px; min-width: 44px; text-align: center;
       font-size: 15px; font-weight: 700; color: var(--text);
+      background: transparent; border: none; outline: none;
+      padding: 4px 0; -moz-appearance: textfield;
+      caret-color: var(--primary);
     }
+    .ws-val::-webkit-outer-spin-button,
+    .ws-val::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .ws-val:focus { color: var(--primary); }
     .ws-unit { font-size: 12px; color: var(--muted); margin-left: 2px; }
     .price-disclaimer {
       font-size: 11px; color: var(--muted); text-align: center;
@@ -1934,14 +1940,13 @@
             <span class="pw-label">重量</span>
             <div class="weight-stepper">
               <button id="weightMinus" class="ws-btn" disabled>−</button>
-              <span class="ws-val" id="weightVal">1</span>
+              <input id="weightVal" class="ws-val" type="number" inputmode="numeric" pattern="[0-9]*" value="1" min="1" max="50" />
               <span class="ws-unit">kg</span>
               <button id="weightPlus" class="ws-btn">+</button>
             </div>
           </div>
         </div>
-        <!-- P1-2: 价格声明 -->
-        <div class="price-disclaimer">💡 价格为参考价，实际费用以下单结算时为准</div>
+        <!-- P1-2: 价格声明已迁移到底部栏 -->
         <!-- P0-3: 服务卡片（选城市后展示） -->
         <div id="priceEmptyHint" class="price-empty-hint">
           <div class="price-empty-icon">🔍</div>
@@ -2687,7 +2692,7 @@
       $('#fromCityBtn').classList.toggle('has-city', !!q.fromCity);
       $('#toCityBtn').classList.toggle('has-city',   !!q.toCity);
       // 重量展示
-      $('#weightVal').textContent = q.weight;
+      $('#weightVal').value = q.weight;
       $('#weightMinus').disabled = q.weight <= 1;
       // 卡片区域
       const hasBoth = !!(q.fromCity && q.toCity);
@@ -2926,23 +2931,48 @@
         const btn = e.target.closest('[data-city]');
         if (btn) selectCity(btn.dataset.city);
       });
-      // 重量步进器
+      // 重量步进器 + 手动输入
       function updateWeightStepper() {
         const w = state.priceQuery.weight;
-        $('#weightVal').textContent = w;
+        $('#weightVal').value = w;
         $('#weightMinus').disabled = w <= 1;
+      }
+      function refreshPriceByWeight() {
+        if (state.priceQuery.fromCity && state.priceQuery.toCity) {
+          renderPriceCards();
+          updatePriceBottomBar();
+        }
       }
       $('#weightMinus').addEventListener('click', () => {
         if (state.priceQuery.weight <= 1) return;
         state.priceQuery.weight = Math.max(1, state.priceQuery.weight - 1);
         updateWeightStepper();
-        if (state.priceQuery.fromCity && state.priceQuery.toCity) { renderPriceCards(); updatePriceBottomBar(); }
+        refreshPriceByWeight();
       });
       $('#weightPlus').addEventListener('click', () => {
         state.priceQuery.weight = Math.min(50, state.priceQuery.weight + 1);
         updateWeightStepper();
-        if (state.priceQuery.fromCity && state.priceQuery.toCity) { renderPriceCards(); updatePriceBottomBar(); }
+        refreshPriceByWeight();
       });
+      // 手动输入：输入过程中只过滤非法字符，软键盘可正常弹出
+      $('#weightVal').addEventListener('input', e => {
+        const raw = e.target.value.replace(/[^0-9]/g, '');
+        e.target.value = raw;
+        if (raw === '') return; // 清空中，暂不更新
+        const n = Math.min(50, Math.max(1, parseInt(raw, 10) || 1));
+        state.priceQuery.weight = n;
+        $('#weightMinus').disabled = n <= 1;
+        refreshPriceByWeight();
+      });
+      // 失焦时如为空或越界，回填为合法值
+      $('#weightVal').addEventListener('blur', e => {
+        const n = Math.min(50, Math.max(1, parseInt(e.target.value, 10) || 1));
+        state.priceQuery.weight = n;
+        updateWeightStepper();
+        refreshPriceByWeight();
+      });
+      // 聚焦时全选，方便直接覆写
+      $('#weightVal').addEventListener('focus', e => { e.target.select(); });
       $('#priceSvcList').addEventListener('click', e => {
         const card = e.target.closest('[data-cp]');
         if (!card) return;
