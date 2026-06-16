@@ -2005,7 +2005,7 @@
         </div>
         <div id="priceSvcList" style="display:none"></div>
         <!-- 优惠区域 -->
-        <div class="price-coupon-section">
+        <div class="price-coupon-section" id="priceCouponSection" style="display:none">
           <div class="pcs-header">
             <span class="pcs-title">优惠</span>
             <span class="pcs-amount">-¥3</span>
@@ -2788,6 +2788,7 @@
       const hasBoth = !!(q.fromCity && q.toCity);
       $('#priceEmptyHint').style.display = hasBoth ? 'none' : '';
       $('#priceSvcList').style.display   = hasBoth ? '' : 'none';
+      $('#priceCouponSection').style.display = hasBoth ? '' : 'none';
       if (hasBoth) renderPriceCards();
       updatePriceBottomBar();
     }
