@@ -1554,8 +1554,9 @@
       height: 26px; padding: 0 10px; border-radius: 999px;
       background: #f4f6fa; color: #4e5969;
       font-size: 12px; font-weight: 500; border: 1px solid transparent;
-      transition: 0.15s ease;
+      transition: 0.15s ease; white-space: nowrap;
     }
+    .hc-chip .hc-arrow { color: var(--muted); margin: 0 3px; font-size: 10px; }
     .hc-chip:active { background: var(--primary-soft); color: var(--primary); transform: scale(0.94); }
     .price-weight-row {
       display: flex; align-items: center; gap: 10px;
@@ -1952,13 +1953,12 @@
             </button>
           </div>
           <div class="hot-cities-row" id="hotCitiesRow">
-            <span class="hc-label">🔥 热门城市</span>
-            <button class="hc-chip" data-hc="杭州市">杭州</button>
-            <button class="hc-chip" data-hc="上海市">上海</button>
-            <button class="hc-chip" data-hc="北京市">北京</button>
-            <button class="hc-chip" data-hc="深圳市">深圳</button>
-            <button class="hc-chip" data-hc="广州市">广州</button>
-            <button class="hc-chip" data-hc="成都市">成都</button>
+            <span class="hc-label">🔥 热门线路</span>
+            <button class="hc-chip" data-hc-from="北京市" data-hc-to="杭州市">北京<span class="hc-arrow">→</span>杭州</button>
+            <button class="hc-chip" data-hc-from="上海市" data-hc-to="深圳市">上海<span class="hc-arrow">→</span>深圳</button>
+            <button class="hc-chip" data-hc-from="广州市" data-hc-to="北京市">广州<span class="hc-arrow">→</span>北京</button>
+            <button class="hc-chip" data-hc-from="杭州市" data-hc-to="成都市">杭州<span class="hc-arrow">→</span>成都</button>
+            <button class="hc-chip" data-hc-from="深圳市" data-hc-to="上海市">深圳<span class="hc-arrow">→</span>上海</button>
           </div>
           <div class="price-weight-row">
             <span class="pw-label">重量</span>
@@ -2940,20 +2940,13 @@
       $('#fromCityBtn').addEventListener('click', () => openCityPicker('from'));
       $('#toCityBtn').addEventListener('click', () => openCityPicker('to'));
       $('#swapCities').addEventListener('click', swapCities);
-      // 热门城市快捷填充
+      // 热门线路快捷填充
       $('#hotCitiesRow').addEventListener('click', e => {
-        const chip = e.target.closest('[data-hc]');
+        const chip = e.target.closest('[data-hc-from]');
         if (!chip) return;
-        const city = chip.dataset.hc;
         const q = state.priceQuery;
-        if (!q.fromCity) {
-          q.fromCity = city;
-        } else if (!q.toCity) {
-          q.toCity = city;
-        } else {
-          // 两个都有值时替换收货地
-          q.toCity = city;
-        }
+        q.fromCity = chip.dataset.hcFrom;
+        q.toCity = chip.dataset.hcTo;
         renderPriceView();
       });
       $('#closeCityPicker').addEventListener('click', closeCityPicker);
