@@ -1591,6 +1591,32 @@
       font-size: 11px; color: var(--muted); text-align: center;
       margin: -2px 0 8px; padding: 0 4px; line-height: 1.5;
     }
+    .price-section-title {
+      font-size: 15px; font-weight: 700; color: var(--text);
+      padding: 14px 4px 8px; margin: 0;
+    }
+    .price-coupon-section {
+      margin-top: 12px; padding: 14px 16px;
+      background: #fff; border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+    .pcs-header {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .pcs-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .pcs-tag {
+      font-size: 11px; padding: 2px 6px; border-radius: 4px;
+      background: #fff0f0; color: #e64340; font-weight: 500;
+    }
+    .pcs-amount { margin-left: auto; font-size: 14px; font-weight: 700; color: #e64340; }
+    .pcs-arrow { font-size: 16px; color: var(--muted); }
+    .pcs-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 10px; margin-top: 10px;
+      border-top: 1px solid var(--line);
+      font-size: 13px; color: var(--muted);
+    }
+    .pcs-item-val { font-size: 13px; font-weight: 600; color: #e64340; }
     .price-empty-hint { text-align: center; padding: 36px 20px; color: var(--muted); }
     .price-empty-icon { font-size: 42px; margin-bottom: 12px; }
     .price-empty-hint p { font-size: 14px; line-height: 1.7; margin: 0; }
@@ -1970,12 +1996,22 @@
           </div>
         </div>
         <!-- P1-2: 价格声明已迁移到底部栏 -->
+        <!-- 服务列表标题 -->
+        <div class="price-section-title">请选择物流服务</div>
         <!-- P0-3: 服务卡片（选城市后展示） -->
         <div id="priceEmptyHint" class="price-empty-hint">
           <div class="price-empty-icon">🔍</div>
           <p>选择发货地和收货地<br>即可查看各服务预估运费</p>
         </div>
         <div id="priceSvcList" style="display:none"></div>
+        <!-- 优惠区域 -->
+        <div class="price-coupon-section">
+          <div class="pcs-header">
+            <span class="pcs-title">优惠</span>
+            <span class="pcs-amount">-¥3</span>
+            <span class="pcs-arrow">›</span>
+          </div>
+        </div>
       </div>
       <!-- P0-4: 底部下单栏 -->
       <div class="price-bottom-bar">
