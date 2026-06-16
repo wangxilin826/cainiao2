@@ -1931,7 +1931,6 @@
     <section id="priceView" class="view">
       <div class="status-space"></div>
       <div class="nav">
-        <button id="backFromPrice" class="left">‹ 返回</button>
         <h1>运费查询</h1>
       </div>
       <div class="page" style="padding-top:10px">
@@ -2133,6 +2132,8 @@
       { key: 'budget',   icon: '💸', name: '特惠寄', tag: '当日上门，价格最优',   base: 8,  perKg: 1.8 },
       { key: 'premium',  icon: '⭐', name: '尊享寄', tag: '1小时上门，时效保障',  base: 18, perKg: 3.2 },
       { key: 'large',    icon: '🚛', name: '寄大件', tag: '大件重货，专属运力',   base: 25, perKg: 2.8 },
+      { key: 'cabinet',  icon: '📫', name: '到柜寄', tag: '送至附近快递柜，24h自助投递', base: 6, perKg: 1.5 },
+      { key: 'station',  icon: '🏠', name: '服务点自寄', tag: '送至驿站，随到随寄', base: 5, perKg: 1.2 },
     ];
     let _pickerRole = 'from';
     let _pickerProvince = '浙江省';
@@ -2680,27 +2681,56 @@
     }
 
     /* ===== 查价器函数 ===== */
+    // 线路记忆：保存/读取 localStorage
+    const PRICE_HISTORY_KEY = 'cn_price_route_history';
+    function savePriceRoute() {
+      const q = state.priceQuery;
+      if (q.fromCity && q.toCity) {
+        localStorage.setItem(PRICE_HISTORY_KEY, JSON.stringify({
+          fromCity: q.fromCity, fromProvince: q.fromProvince || '',
+          toCity: q.toCity, toProvince: q.toProvince || '',
+          weight: q.weight
+        }));
+      }
+    }
+    function loadPriceRoute() {
+      try {
+        const raw = localStorage.getItem(PRICE_HISTORY_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch(e) { return null; }
+    }
+
     function openPriceView() {
       const q = state.priceQuery;
-      // 同步寄件页寄件地址到发货地（仅在未查询过时同步，避免覆盖用户修改过的历史）
+      // 优先级：localStorage 历史 > 寄件地址同步
       if (!q.hasQueried) {
-        const sendAddr = state.addresses.send;
-        if (sendAddr && sendAddr.region) {
-          // region 格式如 "浙江省 杭州市 余杭区"，取第二节作为城市
-          const parts = sendAddr.region.trim().split(/\s+/);
-          const city = parts.length >= 2 ? parts[1] : parts[0];
-          q.fromCity = city;
-          q.fromProvince = parts[0] || '';
+        const saved = loadPriceRoute();
+        if (saved && saved.fromCity) {
+          q.fromCity = saved.fromCity;
+          q.fromProvince = saved.fromProvince || '';
+          q.toCity = saved.toCity || '';
+          q.toProvince = saved.toProvince || '';
+          q.weight = saved.weight || 1;
+          q.hasQueried = true; // 标记为已有历史
         } else {
-          q.fromCity = '';
-          q.fromProvince = '';
+          // 无历史记录，尝试从寄件地址同步
+          const sendAddr = state.addresses.send;
+          if (sendAddr && sendAddr.region) {
+            const parts = sendAddr.region.trim().split(/\s+/);
+            const city = parts.length >= 2 ? parts[1] : parts[0];
+            q.fromCity = city;
+            q.fromProvince = parts[0] || '';
+          } else {
+            q.fromCity = '';
+            q.fromProvince = '';
+          }
         }
       }
       switchView('price');
       // P1-3: 如有历史记录，自动展示
       if (q.hasQueried && q.fromCity && q.toCity) {
         $('#priceHistoryBar').style.display = '';
-        $('#priceHistoryText').textContent = q.fromCity + '→' + q.toCity;
+        $('#priceHistoryText').textContent = q.fromCity + ' → ' + q.toCity;
       } else {
         $('#priceHistoryBar').style.display = 'none';
       }
@@ -2797,6 +2827,11 @@
       }
       closeCityPicker();
       renderPriceView();
+      // 两个城市都填完时自动保存线路
+      if (state.priceQuery.fromCity && state.priceQuery.toCity) {
+        state.priceQuery.hasQueried = true;
+        savePriceRoute();
+      }
     }
 
     function swapCities() {
@@ -2804,13 +2839,15 @@
       [q.fromCity, q.toCity] = [q.toCity, q.fromCity];
       [q.fromProvince, q.toProvince] = [q.toProvince, q.fromProvince];
       renderPriceView();
+      if (q.fromCity && q.toCity) savePriceRoute();
     }
 
     function doPriceOrder() {
       const q = state.priceQuery;
       if (!q.fromCity || !q.toCity) { showToast('请先选择发货和收货城市'); return; }
-      // P1-3: 标记已查询
+      // P1-3: 标记已查询 + 保存线路
       q.hasQueried = true;
+      savePriceRoute();
       // P0-4: 带入已选 CP 到首页
       state.selectedCp = q.selectedCp;
       renderCpList();
@@ -2936,7 +2973,7 @@
 
       // ===== 查价器事件 =====
       $('#openPriceBtn').addEventListener('click', openPriceView);
-      $('#backFromPrice').addEventListener('click', () => switchView('home'));
+      // $('#backFromPrice') 已删除
       $('#fromCityBtn').addEventListener('click', () => openCityPicker('from'));
       $('#toCityBtn').addEventListener('click', () => openCityPicker('to'));
       $('#swapCities').addEventListener('click', swapCities);
